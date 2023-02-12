@@ -4,7 +4,7 @@
 
 ## [#](https://vue-js.com/learn-vue/reactive/#_2-什么是变化侦测)1. 起步
 
- 
+
 
 > 目录如下
 
@@ -61,7 +61,7 @@
 
 # Object的变化侦测
 
-## 
+##
 
 ## 1. 前言
 
@@ -795,7 +795,7 @@ arr.length = 0    // 通过修改数组长度清空数组
 
    ```javascript
    <div class="a" id="b">我是内容</div>
-   
+
    {
      tag:'div',        // 元素标签
      attrs:{           // 属性
@@ -807,7 +807,7 @@ arr.length = 0    // 通过修改数组长度清空数组
    }
    ```
 
-   
+
 
    我们把组成一个`DOM`节点的必要东西通过一个`JS`对象表示出来，那么这个`JS`对象就可以用来描述这个`DOM`节点，我们把这个`JS`对象就称为是这个真实`DOM`节点的虚拟`DOM`节点。
 
@@ -824,7 +824,7 @@ arr.length = 0    // 通过修改数组长度清空数组
    console.log(str)
    ```
 
-   
+
 
 ![img](https://vue-js.com/learn-vue/assets/img/1.a052465d.png)
 
@@ -1551,7 +1551,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 2. 如果`oldEndVnode`不存在，则直接跳过，将`oldEndIdx`减1，比对前一个
 
@@ -1561,7 +1561,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 3. 如果新前与旧前节点相同，就把两个节点进行`patch`更新，同时`oldStartIdx`和`newStartIdx`都加1，后移一个位置
 
@@ -1573,7 +1573,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 4. 如果新后与旧后节点相同，就把两个节点进行`patch`更新，同时`oldEndIdx`和`newEndIdx`都减1，前移一个位置
 
@@ -1585,7 +1585,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 5. 如果新后与旧前节点相同，先把两个节点进行`patch`更新，然后把旧前节点移动到`oldChilren`中所有未处理节点之后，最后把`oldStartIdx`加1，后移一个位置，`newEndIdx`减1，前移一个位置
 
@@ -1598,7 +1598,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 6. 如果新前与旧后节点相同，先把两个节点进行`patch`更新，然后把旧后节点移动到`oldChilren`中所有未处理节点之前，最后把`newStartIdx`加1，后移一个位置，`oldEndIdx`减1，前移一个位置
 
@@ -1611,7 +1611,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 7. 如果不属于以上四种情况，就进行常规的循环比对`patch`
 
@@ -1624,7 +1624,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 9. 如果在循环中，`newStartIdx`大于`newEndIdx`了，那就表示`newChildren`比`oldChildren`先循环完毕，那么`oldChildren`里面剩余的节点都是需要删除的节点，把`[oldStartIdx, oldEndIdx]`之间的所有节点都删除
 
@@ -1634,7 +1634,7 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
+
 
 OK,处理完毕，可见源码中的处理逻辑跟我们之前分析的逻辑是一样的。
 
@@ -1872,7 +1872,7 @@ export function parse(template, options) {
   start (tag, attrs, unary) {
   	let element = createASTElement(tag, attrs, currentParent)
   }
-  
+
   export function createASTElement (tag,attrs,parent) {
     return {
       type: 1,
@@ -1885,7 +1885,7 @@ export function parse(template, options) {
   }
   ```
 
-  
+
 
   从上面代码中我们可以看到，`start`函数接收三个参数，分别是标签名`tag`、标签属性`attrs`、标签是否自闭合`unary`。当调用该钩子函数时，内部会调用`createASTElement`函数来创建元素类型的`AST`节点
 
@@ -1912,7 +1912,7 @@ export function parse(template, options) {
   }
   ```
 
-  
+
 
   当解析到标签的文本时，触发`chars`钩子函数，在该钩子函数内部，首先会判断文本是不是一个带变量的动态文本，如“hello ”。如果是动态文本，则创建动态文本类型的`AST`节点；如果不是动态文本，则创建纯静态文本类型的`AST`节点。
 
@@ -1929,7 +1929,7 @@ export function parse(template, options) {
   }
   ```
 
-  
+
 
   当解析到标签的注释时，触发`comment`钩子函数，该钩子函数会创建一个注释类型的`AST`节点。
 
@@ -3531,7 +3531,7 @@ ast = {
    _c('div',{attrs:{"id":"NLRX"}},[/*子节点列表*/])
    ```
 
-   
+
 
 2. 根节点`div`有子节点，那么我们进入子节点列表`children`里遍历子节点，发现子节点`p`也是元素型的，那就继续创建元素型`VNode`并将其放入上述代码中根节点的子节点列表中，如下：
 
@@ -3539,7 +3539,7 @@ ast = {
    _c('div',{attrs:{"id":"NLRX"}},[_c('p'),[/*子节点列表*/]])
    ```
 
-   
+
 
 3. 同理，继续遍历`p`节点的子节点，发现是一个文本型节点，那就创建一个文本型`VNode`并将其插入到`p`节点的子节点列表中，同理，创建文本型`VNode`我们调用`_v()`方法，如下：
 
@@ -3568,13 +3568,13 @@ ast = {
    `
    ```
 
-   
+
 
 5. 最后，我们将上面得到的这个函数字符串传递给`createFunction`函数（关于这个函数在后面会介绍到），`createFunction`函数会帮我们把得到的函数字符串转换成真正的函数，赋给组件中的`render`选项，从而就是`render`函数了。如下：
 
    ```javascript
    res.render = createFunction(compiled.render, fnGenErrors)
-   
+
    function createFunction (code, errors) {
      try {
        return new Function(code)
@@ -3686,7 +3686,7 @@ children ? `,${children}` : '' // children
      let data = '{'
      const dirs = genDirectives(el, state)
      if (dirs) data += dirs + ','
-   
+
        // key
        if (el.key) {
            data += `key:${el.key},`
@@ -3732,7 +3732,7 @@ children ? `,${children}` : '' // children
    }
    ```
 
-  
+
 
 3. 上面两步完成之后，生成`_c（）`函数调用字符串，如下：
 
@@ -3744,7 +3744,7 @@ children ? `,${children}` : '' // children
          })`
    ```
 
-  
+
 
 ### [#](https://vue-js.com/learn-vue/complie/codegen.html#_3-2-文本节点)3.2 文本节点
 
@@ -9009,7 +9009,7 @@ vm.$watch( expOrFn, callback, [options] )
   vm.$watch('a.b.c', function (newVal, oldVal) {
     // 做点什么
   })
-  
+
   // 函数
   vm.$watch(
     function () {
@@ -11399,7 +11399,7 @@ Vue.nextTick( [callback, context] )
   Vue.nextTick(function () {
     // DOM 更新了
   })
-  
+
   // 作为一个 Promise 使用 (2.1.0 起新增，详见接下来的提示)
   Vue.nextTick()
     .then(function () {
@@ -11513,12 +11513,12 @@ Vue.directive( id, [definition] )
     componentUpdated: function () {},
     unbind: function () {}
   })
-  
+
   // 注册 (指令函数)
   Vue.directive('my-directive', function () {
     // 这里将会被 `bind` 和 `update` 调用
   })
-  
+
   // getter，返回已注册的指令
   var myDirective = Vue.directive('my-directive')
   ```
@@ -11648,7 +11648,7 @@ Vue.filter( id, [definition] )
   Vue.filter('my-filter', function (value) {
     // 返回处理后的值
   })
-  
+
   // getter，返回已注册的过滤器
   var myFilter = Vue.filter('my-filter')
   ```
@@ -11719,10 +11719,10 @@ Vue.component( id, [definition] )
   ```javascript
   // 注册组件，传入一个扩展过的构造器
   Vue.component('my-component', Vue.extend({ /* ... */ }))
-  
+
   // 注册组件，传入一个选项对象 (自动调用 Vue.extend)
   Vue.component('my-component', { /* ... */ })
-  
+
   // 获取注册的组件 (始终返回构造器)
   var MyComponent = Vue.component('my-component')
   ```
@@ -12070,7 +12070,7 @@ Vue.compile( template )
 
   ```javascript
   var res = Vue.compile('<div><span>{{ msg }}</span></div>')
-  
+
   new Vue({
     data: {
       msg: 'hello'
@@ -12126,7 +12126,7 @@ Vue.observable( object )
 
   ```javascript
   const state = Vue.observable({ count: 0 })
-  
+
   const Demo = {
     render(h) {
       return h('button', {
@@ -12168,7 +12168,7 @@ Vue.version
 
   ```javascript
   var version = Number(Vue.version.split('.')[0])
-  
+
   if (version === 2) {
     // Vue v2.x.x
   } else if (version === 1) {
