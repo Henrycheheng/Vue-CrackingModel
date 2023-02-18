@@ -1,4 +1,5 @@
-/* eslint-disable camelcase */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -26,7 +27,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: VITE_PUBLIC_PATH,
-    plugins: [vue(), vueJsx()], // vite的支持的插件都需要在这里注册
+    plugins: [vue(), vueJsx()],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)), // 引用别名,fileURLToPath为了保证转码不会乱码
@@ -47,18 +48,11 @@ export default defineConfig(({ command, mode }) => {
       hmr: {
         overlay: true,
       },
+      host: '0.0.0.0',
     },
     build: {
       outDir: OUTPUT_DIR,
-      // reportCompressedSize: true,
-      rollupOptions: {
-        external: [
-          pathResolver('src/views/render.html'),
-          pathResolver('src/typescript/*.ts'),
-          pathResolver('src/less/*.less'),
-          pathResolver('docs/*'),
-        ],
-      },
+      exclude: [/node_modules/, /src\/vue\/*/],
       chunkSizeWarningLimit: 500,
       reportCompressedSize: true, // 压缩大型输出文件可能会很慢，因此禁用该功能可能会提高大型项目的构建性能。
     },
