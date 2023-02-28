@@ -47,7 +47,7 @@
     // ↓编译过程中需要引入的库文件的列表。
     "lib": ["dom", "esnext"],
     // ↓要包含的类型声明文件名列表。
-    "types": ["vite/client"],
+    "types": ["vite/client", "element-plus/global"],
     // ↓要包含的类型声明文件路径列表。
     "typeRoots": ["./node_modules/@types/", "./types"],
     "incremental": true,
