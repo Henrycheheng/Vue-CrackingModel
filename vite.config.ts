@@ -36,6 +36,8 @@ export default defineConfig(({ command, mode }) => {
       vueJsx(),
       AutoImport({
         resolvers: [ElementPlusResolver()],
+        imports: ['vue'],
+        dts: 'src/auto-import.d.ts',
       }),
       Components({
         resolvers: [ElementPlusResolver()],

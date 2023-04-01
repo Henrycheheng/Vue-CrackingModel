@@ -1,5 +1,5 @@
 {
-  "name": "test-app",
+  "name": "super-stock",
   "version": "0.0.2",
   "scripts": {
     "docs:dev": "vitepress dev docs",
