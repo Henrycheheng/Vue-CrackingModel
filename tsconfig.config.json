@@ -3,6 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "types": ["node"],
-    "isolatedModules": false
+    "isolatedModules": false,
+    "lib": ["DOM"]
   }
 }
