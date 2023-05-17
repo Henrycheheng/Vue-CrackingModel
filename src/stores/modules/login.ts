@@ -19,13 +19,13 @@ export const loginStore = defineStore({
     doubleCount: (state) => state.counter * 2,
   },
   actions: {
-    increment() {
+    increment(): void {
       this.list[0].bugNum++
     },
-    incrementCounter() {
+    incrementCounter(): void {
       this.counter++
     },
-    async getLogin() {
+    async getLogin(): Promise<void> {
       const { data } = await loginApi.login({
         userName: '1',
         passWord: '1',

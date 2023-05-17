@@ -14,9 +14,8 @@ const arr1: Array<string | number> = [1]
 /*
   元组类型允许表示一个已知元素数量和类型的数组，各元素的类型不必相同。 比如，你可以定义一对值分别为string和number类型的元组。
 */
-let x: [string, number]
-// Initialize it
-x = ['hello', 10] // OK
+
+const x: [string, number] = ['hello', 10] // OK
 // Initialize it incorrectly
 
 // console.log(x[0].substring(1)); // OK
