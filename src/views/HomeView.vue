@@ -1,9 +1,7 @@
-<script setup lang="ts">
-  const msg = ref('112')
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  {{ msg }}
+  <div> Home </div>
 </template>
 
 <style scoped lang="less"></style>
