@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div> Home </div>
+  <div> Music </div>
 </template>
 
 <style scoped lang="less"></style>

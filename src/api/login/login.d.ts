@@ -1,4 +1,4 @@
-import { ResType } from '@/service/http'
+import { ResType } from '@/service/ResType'
 
 export interface ILoginParams {
   [propname: string | number | symbol]: any

@@ -41,6 +41,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
+    "@datadog/datadog-ci": "^2.10.0",
     "@ls-lint/ls-lint": "^1.11.2",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/jsdom": "^20.0.0",

@@ -1,5 +1,5 @@
 <template>
-  <div> about</div>
+  <div> VideoView</div>
 </template>
 
 <script setup lang="ts"></script>
