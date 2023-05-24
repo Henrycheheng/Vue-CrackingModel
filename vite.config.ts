@@ -1,10 +1,15 @@
-/* eslint-disable camelcase */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import { resolve } from 'node:path'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import ElementPlus from 'unplugin-element-plus/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
+import { resolve } from 'node:path'
 import { createProxy } from './build/vite/proxy'
 import { wrapperEnv } from './build/utils'
 import { OUTPUT_DIR } from './build/constant'
@@ -26,7 +31,19 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: VITE_PUBLIC_PATH,
-    plugins: [vue(), vueJsx()], // vite的支持的插件都需要在这里注册
+    plugins: [
+      vue(),
+      vueJsx(),
+      AutoImport({
+        resolvers: [ElementPlusResolver()],
+        imports: ['vue'],
+        dts: 'src/auto-import.d.ts',
+      }),
+      Components({
+        resolvers: [ElementPlusResolver()],
+      }),
+      ElementPlus({}),
+    ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)), // 引用别名,fileURLToPath为了保证转码不会乱码
@@ -47,18 +64,11 @@ export default defineConfig(({ command, mode }) => {
       hmr: {
         overlay: true,
       },
+      host: '0.0.0.0',
     },
     build: {
       outDir: OUTPUT_DIR,
-      // reportCompressedSize: true,
-      rollupOptions: {
-        external: [
-          pathResolver('src/views/render.html'),
-          pathResolver('src/typescript/*.ts'),
-          pathResolver('src/less/*.less'),
-          pathResolver('docs/*'),
-        ],
-      },
+      exclude: [/node_modules/, /src\/vue\/*/],
       chunkSizeWarningLimit: 500,
       reportCompressedSize: true, // 压缩大型输出文件可能会很慢，因此禁用该功能可能会提高大型项目的构建性能。
     },

@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import NProgress from 'nprogress'
+import type { Http } from './ResType'
 
 // 设置请求头和请求路径
 
@@ -30,21 +31,6 @@ axios.interceptors.response.use((res) => {
   }
   return res.data
 })
-
-interface ResType<T> {
-  code: number
-  msg: string
-  data?: T
-  err?: string
-}
-
-interface Http {
-  get<T>(url: string, params?: unknown): Promise<ResType<T>>
-  put<T>(url: string, params?: unknown): Promise<ResType<T>>
-  post<T>(url: string, params?: unknown): Promise<ResType<T>>
-  upload<T>(url: string, params: unknown): Promise<ResType<T>>
-  download(url: string): void
-}
 
 const http: Http = {
   get(url, params) {
