@@ -1472,10 +1472,10 @@ OK，以上就是子节点对比更新优化策略种的4种情况，如果以�
 
 首先，我们先准备4个变量：
 
-- **newStartIdx:** `newChildren`数组里开始位置的下标
-- **newEndIdx:** `newChildren`数组里结束位置的下标
-- **oldStartIdx:** `oldChildren`数组里开始位置的下标
-- **oldEndIdx:** `oldChildren`数组里结束位置的下标
+- newStartIdx: `newChildren`数组里开始位置的下标
+- newEndIdx: `newChildren`数组里结束位置的下标
+- oldStartIdx: `oldChildren`数组里开始位置的下标
+- oldEndIdx: `oldChildren`数组里结束位置的下标
 
 在循环的时候，每处理一个节点，就将下标向图中箭头所指的方向移动一个位置，开始位置所表示的节点被处理后，就向后移动一个位置；结束位置所表示的节点被处理后，就向前移动一个位置；由于我们的优化策略都是新旧节点两两更新的，所以一次更新将会移动两个节点。说的再直白一点就是：`newStartIdx`和`oldStartIdx`只能往后移动（只会加），`newEndIdx`和`oldEndIdx`只能往前移动（只会减）。
 
