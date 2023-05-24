@@ -4,8 +4,6 @@
 
 ## [#](https://vue-js.com/learn-vue/reactive/#_2-什么是变化侦测)1. 起步
 
- 
-
 > 目录如下
 
 ```bash
@@ -46,7 +44,6 @@
 变化侦测可不是个新名词，它在目前的前端三大框架中均有涉及。
 
 > 在`Angular`中是通过脏值检查流程来实现变化侦测；
-
 > 在`React`是通过对比虚拟`DOM`来实现变化侦测，而在`Vue`中也有自己的一套变化侦测实现机制。
 
 接下来我们就通过阅读源码来学习一下`Vue`是怎么实现自己的对数据变化进行侦测的机制
@@ -61,7 +58,7 @@
 
 # Object的变化侦测
 
-## 
+##
 
 ## 1. 前言
 
@@ -343,8 +340,6 @@ export function parsePath (path) {
 }
 ```
 
-
-
 谁用到了数据，谁就是依赖，我们就为谁创建一个`Watcher`实例，在创建`Watcher`实例的过程中会自动的把自己添加到这个数据对应的依赖管理器中，以后这个`Watcher`实例就代表这个依赖，当数据变化时，我们就通知`Watcher`实例，由`Watcher`实例再去通知真正的依赖。
 
 那么，在创建`Watcher`实例的过程中它是如何的把自己添加到这个数据对应的依赖管理器中呢？
@@ -439,7 +434,6 @@ Array.prototype.newPush = function(val){
 arr.newPush(4)
 ```
 
-
 在上面这个例子中，我们针对数组的原生`push`方法定义个一个新的`newPush`方法，这个`newPush`方法内部调用了原生`push`方法，这样就保证了新的`newPush`方法跟原生`push`方法具有相同的功能，而且我们还可以在新的`newPush`方法内部干一些别的事情，比如通知变化。
 
 是不是很巧妙？`Vue`内部就是这么干的。
@@ -486,7 +480,6 @@ methodsToPatch.forEach(function (method) {
   })
 })
 ```
-
 
 在上面的代码中，首先创建了继承自`Array`原型的空对象`arrayMethods`，接着在`arrayMethods`上使用`object.defineProperty`方法将那些可以改变数组自身的7个方法遍历逐个进行封装。最后，当我们使用`push`方法的时候，其实用的是`arrayMethods.push`，而`arrayMethods.push`就是封装的新函数`mutator`，也就后说，实标上执行的是函数`mutator`，而`mutator`函数内部执行了`original`函数，这个`original`函数就是`Array.prototype`上对应的原生方法。 那么，接下来我们就可以在`mutato`r函数中做一些其他的事，比如说发送变化通知。
 
@@ -537,8 +530,6 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
 }
 ```
 
-
-
 上面代码中首先判断了浏览器是否支持`__proto__`，如果支持，则调用`protoAugment`函数把`value.__proto__ = arrayMethods`；如果不支持，则调用`copyAugment`函数把拦截器中重写的7个方法循环加入到`value`上。
 
 拦截器生效以后，当数组数据再发生变化时，我们就可以在拦截器中通知变化了，也就是说现在我们就可以知道数组数据何时发生变化了，OK，以上我们就完成了对`Array`型数据的可观测。
@@ -566,8 +557,6 @@ export class Observer {
   }
 }
 ```
-
-
 
 上面代码中，在`Observer`类中实例化了一个依赖管理器，用来收集数组依赖。
 
@@ -618,8 +607,6 @@ export function observe (value, asRootData){
 }
 ```
 
-
-
 在上面代码中，我们首先通过`observe`函数为被获取的数据`arr`尝试创建一个`Observer`实例，在`observe`函数内部，先判断当前传入的数据上是否有`__ob__`属性，因为在上篇文章中说了，如果数据有`__ob__`属性，表示它已经被转化成响应式的了，如果没有则表示该数据还不是响应式的，那么就调用`new Observer(value)`将其转化成响应式的，并把数据对应的`Observer`实例返回。
 
 而在`defineReactive`函数中，首先获取数据对应的`Observer`实例`childOb`，然后在`getter`中调用`Observer`实例上依赖管理器，从而将依赖收集起来。
@@ -646,8 +633,6 @@ methodsToPatch.forEach(function (method) {
 })
 ```
 
-
-
 上面代码中，由于我们的拦截器是挂载到数组数据的原型上的，所以拦截器中的`this`就是数据`value`，拿到`value`上的`Observer`类实例，从而你就可以调用`Observer`类实例上面依赖管理器的`dep.notify()`方法，以达到通知依赖的目的。
 
 OK，以上就基本完成了`Array`数据的变化侦测。
@@ -664,8 +649,6 @@ let arr = [
   }
 ]
 ```
-
-
 
 数组中包含了一个对象，如果该对象的某个属性发生了变化也应该被侦测到，这就是深度侦测。
 
@@ -753,8 +736,6 @@ methodsToPatch.forEach(function (method) {
 })
 ```
 
-
-
 在上面拦截器定义代码中，如果是`push`或`unshift`方法，那么传入参数就是新增的元素;如果是`splice`方法，那么传入参数列表中下标为2的就是新增的元素，拿到新增的元素后，就可以调用`observe`函数将新增的元素转化成响应式的了。
 
 ## [#](https://vue-js.com/learn-vue/reactive/array.html#_7-不足之处)7. 不足之处
@@ -766,8 +747,6 @@ let arr = [1,2,3]
 arr[0] = 5;       // 通过数组下标修改数组中的数据
 arr.length = 0    // 通过修改数组长度清空数组
 ```
-
-
 
 而使用上述例子中的操作方式来修改数组是无法侦测到的。 同样，`Vue`也注意到了这个问题， 为了解决这一问题，`Vue`增加了两个全局API:`Vue.set`和`Vue.delete`，这两个API的实现原理将会在后面学习全局API的时候说到。
 
@@ -795,7 +774,7 @@ arr.length = 0    // 通过修改数组长度清空数组
 
    ```javascript
    <div class="a" id="b">我是内容</div>
-   
+
    {
      tag:'div',        // 元素标签
      attrs:{           // 属性
@@ -806,8 +785,6 @@ arr.length = 0    // 通过修改数组长度清空数组
      children:[]       // 子元素
    }
    ```
-
-   
 
    我们把组成一个`DOM`节点的必要东西通过一个`JS`对象表示出来，那么这个`JS`对象就可以用来描述这个`DOM`节点，我们把这个`JS`对象就称为是这个真实`DOM`节点的虚拟`DOM`节点。
 
@@ -823,8 +800,6 @@ arr.length = 0    // 通过修改数组长度清空数组
    }
    console.log(str)
    ```
-
-   
 
 ![img](https://vue-js.com/learn-vue/assets/img/1.a052465d.png)
 
@@ -891,8 +866,6 @@ export default class VNode {
 }
 ```
 
-
-
 从上面的代码中可以看出：`VNode`类中包含了描述一个真实`DOM`节点所需要的一系列属性，如`tag`表示节点的标签名，`text`表示节点中包含的文本，`children`表示该节点包含的子节点等。通过属性之间不同的搭配，就可以描述出各种类型的真实`DOM`节点。
 
 ### [#](https://vue-js.com/learn-vue/virtualDOM/#_3-2-vnode的类型)3.2 VNode的类型
@@ -922,8 +895,6 @@ export const createEmptyVNode = (text: string = '') => {
 }
 ```
 
-
-
 从上面代码中可以看到，描述一个注释节点只需两个属性，分别是：`text`和`isComment`。其中`text`属性表示具体的注释信息，`isComment`是一个标志，用来标识一个节点是否是注释节点。
 
 #### [#](https://vue-js.com/learn-vue/virtualDOM/#_3-2-2-文本节点)3.2.2 文本节点
@@ -936,8 +907,6 @@ export function createTextVNode (val: string | number) {
   return new VNode(undefined, undefined, undefined, String(val))
 }
 ```
-
-
 
 #### [#](https://vue-js.com/learn-vue/virtualDOM/#_3-2-3-克隆节点)3.2.3 克隆节点
 
@@ -969,8 +938,6 @@ export function cloneVNode (vnode: VNode): VNode {
 }
 ```
 
-
-
 从上面代码中可以看到，克隆节点就是把已有节点的属性全部复制到新节点中，而现有节点和新克隆得到的节点之间唯一的不同就是克隆得到的节点`isCloned`为`true`。
 
 #### [#](https://vue-js.com/learn-vue/virtualDOM/#_3-2-4-元素节点)3.2.4 元素节点
@@ -993,8 +960,6 @@ export function cloneVNode (vnode: VNode): VNode {
   ]
 }
 ```
-
-
 
 我们可以看到，真实`DOM`节点中:`div`标签里面包含了一个`span`标签，而`span`标签里面有一段文本。反应到`VNode`节点上就如上所示:`tag`表示标签名，`data`表示标签的属性`id`等，`children`表示子节点数组。
 
@@ -1025,8 +990,6 @@ export function cloneVNode (vnode: VNode): VNode {
 ## [#](https://vue-js.com/learn-vue/virtualDOM/#_4-总结)4. 总结
 
 本章首先介绍了虚拟`DOM`的一些基本概念和为什么要有虚拟`DOM`，其实说白了就是以`JS`的计算性能来换取操作真实`DOM`所消耗的性能。接着从源码角度我们知道了在`Vue`中是通过`VNode`类来实例化出不同类型的虚拟`DOM`节点，并且学习了不同类型节点生成的属性的不同，所谓不同类型的节点其本质还是一样的，都是`VNode`类的实例，只是在实例化时传入的属性参数不同罢了。最后探究了`VNode`的作用，有了数据变化前后的`VNode`，我们才能进行后续的`DOM-Diff`找出差异，最终做到只更新有差异的视图，从而达到尽可能少的操作真实`DOM`的目的，以节省性能。
-
-
 
 ## 2.2 Vue中虚拟DOM-diff
 
@@ -1063,7 +1026,7 @@ function createElm (vnode, parentElm, refElm) {
     const children = vnode.children
     const tag = vnode.tag
     if (isDef(tag)) {
-      	vnode.elm = nodeOps.createElement(tag, vnode)   // 创建元素节点
+       vnode.elm = nodeOps.createElement(tag, vnode)   // 创建元素节点
         createChildren(vnode, children, insertedVnodeQueue) // 创建元素节点的子节点
         insert(parentElm, vnode.elm, refElm)       // 插入到DOM中
     } else if (isTrue(vnode.isComment)) {
@@ -1075,8 +1038,6 @@ function createElm (vnode, parentElm, refElm) {
     }
   }
 ```
-
-
 
 从上面代码中，我们可以看出：
 
@@ -1196,8 +1157,6 @@ function patchVnode (oldVnode, vnode, insertedVnodeQueue, removeOnly) {
 }
 ```
 
-
-
 上面代码里注释已经写得很清晰了，接下来我们画流程图来梳理一下整个过程，流程图如下： ![img](https://vue-js.com/learn-vue/assets/img/3.7b0442aa.png)
 
 通过对照着流程图以及代码，相信更新节点这部分逻辑你很容易就能理解了。
@@ -1207,10 +1166,6 @@ function patchVnode (oldVnode, vnode, insertedVnodeQueue, removeOnly) {
 ## [#](https://vue-js.com/learn-vue/virtualDOM/patch.html#_6-总结)6. 总结
 
 在本篇文章中我们介绍了`Vue`中的`DOM-Diff`算法：patch过程。我们先介绍了算法的整个思想流程，然后通过梳理算法思想，了解了整个`patch`过程干了三件事，分别是：创建节点，删除节点，更新节点。并且对每件事情都对照源码展开了细致的学习，画出了其逻辑流程图。另外对于更新节点中，如果新旧`VNode`里都包含了子节点，我们就需要细致的去更新子节点，关于更新子节点的过程我们在下一篇文章中展开学习。
-
-
-
-
 
 ## 2.3 更新子节点
 
@@ -1233,8 +1188,6 @@ for (let i = 0; i < newChildren.length; i++) {
   }
 }
 ```
-
-
 
 那么以上这个过程将会存在以下四种情况：
 
@@ -1316,8 +1269,6 @@ if (isUndef(idxInOld)) {    // 如果在oldChildren里找不到当前循环的ne
 }
 ```
 
-
-
 以上代码中，首先判断在`oldChildren`里能否找到当前循环的`newChildren`里的子节点，如果找不到，那就是新增节点并插入到合适位置；如果找到了，先对比两个节点是否相同，若相同则先调用`patchVnode`更新节点，更新完之后再看是否需要移动节点，注意，源码里在判断是否需要移动子节点时用了简写的方式，下面这两种写法是等价的：
 
 ```javascript
@@ -1328,8 +1279,6 @@ if(canMove){
 }
 ```
 
-
-
 我们看到，源码里的实现跟我们分析的是一样一样的。
 
 ## [#](https://vue-js.com/learn-vue/virtualDOM/updataChildren.html#_8-总结)8. 总结
@@ -1338,11 +1287,9 @@ if(canMove){
 
 最后，我们再思考一个问题：这样双层循环虽然能解决问题，但是如果节点数量很多，这样循环算法的时间复杂度会不会很高？有没有什么可以优化的办法？答案当然是有的，并且`Vue`也意识到了这点，也进行了优化，那么下篇文章我们就来分析当节点数量很多时`Vue`是怎么优化算法的。
 
-
-
 ## 2.4 优化更新子节点
 
-##  1. 前言
+## 1. 前言
 
 在上一篇文章中，我们介绍了当新的`VNode`与旧的`oldVNode`都是元素节点并且都包含子节点时，`Vue`对子节点是
 
@@ -1358,8 +1305,6 @@ if(canMove){
 newChildren = ['新子节点1','新子节点2','新子节点3','新子节点4']
 oldChildren = ['旧子节点1','旧子节点2','旧子节点3','旧子节点4']
 ```
-
-
 
 如果按照优化之前的解决方案，那么我们接下来的操作应该是这样的：先循环`newChildren`数组，拿到第一个新子节点1，然后用第一个新子节点1去跟`oldChildren`数组里的旧子节点逐一对比，如果运气好一点，刚好`oldChildren`数组里的第一个旧子节点1与第一个新子节点1相同，那就皆大欢喜，直接处理，不用再往下循环了。那如果运气坏一点，直到循环到`oldChildren`数组里的第四个旧子节点4才与第一个新子节点1相同，那此时就会多循环了4次。我们不妨把情况再设想的极端一点，如果`newChildren`数组和`oldChildren`数组里前三个节点都没有变化，只是第四个节点发生了变化，那么我们就会循环16次，只有在第16次循环的时候才发现新节点4与旧节点4相同，进行更新，如下图所示： ![img](https://vue-js.com/learn-vue/assets/img/7.057d7609.jpg)
 
@@ -1521,18 +1466,16 @@ OK，以上就是子节点对比更新优化策略种的4种情况，如果以�
   }
 ```
 
-
-
 读源码之前，我们先有这样一个概念：那就是在我们前面所说的优化策略中，节点有可能是从前面对比，也有可能是从后面对比，对比成功就会进行更新处理，也就是说我们有可能处理第一个，也有可能处理最后一个，那么我们在循环的时候就不能简单从前往后或从后往前循环，而是要从两边向中间循环。
 
 那么该如何从两边向中间循环呢？请看下图： ![img](https://vue-js.com/learn-vue/assets/img/15.e9bdf5c1.png)
 
 首先，我们先准备4个变量：
 
-- **newStartIdx:**`newChildren`数组里开始位置的下标；
-- **newEndIdx:**`newChildren`数组里结束位置的下标；
-- **oldStartIdx:**`oldChildren`数组里开始位置的下标；
-- **oldEndIdx:**`oldChildren`数组里结束位置的下标；
+- **newStartIdx:** `newChildren`数组里开始位置的下标
+- **newEndIdx:** `newChildren`数组里结束位置的下标
+- **oldStartIdx:** `oldChildren`数组里开始位置的下标
+- **oldEndIdx:** `oldChildren`数组里结束位置的下标
 
 在循环的时候，每处理一个节点，就将下标向图中箭头所指的方向移动一个位置，开始位置所表示的节点被处理后，就向后移动一个位置；结束位置所表示的节点被处理后，就向前移动一个位置；由于我们的优化策略都是新旧节点两两更新的，所以一次更新将会移动两个节点。说的再直白一点就是：`newStartIdx`和`oldStartIdx`只能往后移动（只会加），`newEndIdx`和`oldEndIdx`只能往前移动（只会减）。
 
@@ -1545,13 +1488,11 @@ OK，有了这个概念后，我们开始读源码：
    ```javascript
    // 以"新前"、"新后"、"旧前"、"旧后"的方式开始比对节点
    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-   	if (isUndef(oldStartVnode)) {
+    if (isUndef(oldStartVnode)) {
            oldStartVnode = oldCh[++oldStartIdx]
          }
    }
    ```
-
-   
 
 2. 如果`oldEndVnode`不存在，则直接跳过，将`oldEndIdx`减1，比对前一个
 
@@ -1560,8 +1501,6 @@ OK，有了这个概念后，我们开始读源码：
        oldEndVnode = oldCh[--oldEndIdx]
    }
    ```
-
-   
 
 3. 如果新前与旧前节点相同，就把两个节点进行`patch`更新，同时`oldStartIdx`和`newStartIdx`都加1，后移一个位置
 
@@ -1573,8 +1512,6 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
-
 4. 如果新后与旧后节点相同，就把两个节点进行`patch`更新，同时`oldEndIdx`和`newEndIdx`都减1，前移一个位置
 
    ```javascript
@@ -1584,8 +1521,6 @@ OK，有了这个概念后，我们开始读源码：
        newEndVnode = newCh[--newEndIdx]
    }
    ```
-
-   
 
 5. 如果新后与旧前节点相同，先把两个节点进行`patch`更新，然后把旧前节点移动到`oldChilren`中所有未处理节点之后，最后把`oldStartIdx`加1，后移一个位置，`newEndIdx`减1，前移一个位置
 
@@ -1598,8 +1533,6 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
-
 6. 如果新前与旧后节点相同，先把两个节点进行`patch`更新，然后把旧后节点移动到`oldChilren`中所有未处理节点之前，最后把`newStartIdx`加1，后移一个位置，`oldEndIdx`减1，前移一个位置
 
    ```javascript
@@ -1610,8 +1543,6 @@ OK，有了这个概念后，我们开始读源码：
        newStartVnode = newCh[++newStartIdx]
    }
    ```
-
-   
 
 7. 如果不属于以上四种情况，就进行常规的循环比对`patch`
 
@@ -1624,8 +1555,6 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
-
 9. 如果在循环中，`newStartIdx`大于`newEndIdx`了，那就表示`newChildren`比`oldChildren`先循环完毕，那么`oldChildren`里面剩余的节点都是需要删除的节点，把`[oldStartIdx, oldEndIdx]`之间的所有节点都删除
 
    ```javascript
@@ -1634,21 +1563,17 @@ OK，有了这个概念后，我们开始读源码：
    }
    ```
 
-   
-
 OK,处理完毕，可见源码中的处理逻辑跟我们之前分析的逻辑是一样的。
 
 ## [#](https://vue-js.com/learn-vue/virtualDOM/optimizeUpdataChildren.html#_8-总结)8. 总结
 
 本篇文章中，我们介绍了`Vue`中子节点更新的优化策略，发现`Vue`为了避免双重循环数据量大时间复杂度升高带来的性能问题，而选择了从子节点数组中的4个特殊位置互相比对，分别是：新前与旧前，新后与旧后，新后与旧前，新前与旧后。对于每一种情况我们都通过图文的形式对其逻辑进行了分析。最后我们回到源码，通过阅读源码来验证我们分析的是否正确。幸运的是我们之前每一步的分析都在源码中找到了相应的实现，得以验证我们的分析没有错。以上就是`Vue`中的`patch`过程，即`DOM-Diff`算法所有内容了，到这里相信你再读这部分源码的时候就有比较清晰的思路了。
 
-
-
 # 3 模板编译篇
 
 ## 3.1 综述
 
-##  1. 前言
+## 1. 前言
 
 在前几篇文章中，我们介绍了`Vue`中的虚拟`DOM`以及虚拟`DOM`的`patch`(DOM-Diff)过程，而虚拟`DOM`存在的必要条件是得先有`VNode`，那么`VNode`又是从哪儿来的呢？这就是接下来几篇文章要说的模板编译。你可以这么理解：把用户写的模板进行编译，就会产生`VNode`。
 
@@ -1678,7 +1603,7 @@ OK,处理完毕，可见源码中的处理逻辑跟我们之前分析的逻辑�
 
 我就知道，这段话贴出来也是白贴，因为看了也看不懂，哈哈。那么我们就以最直观的例子来理解什么是抽象语法树。请看下图： ![img](https://vue-js.com/learn-vue/assets/img/2.5596631a.png)
 
-从图中我们可以看到，一个简单的`HTML`标签的代码被转换成了一个`JS`对象，而这个对象中的属性代表了这个标签中一些关键有效信息。如图中标识。 有兴趣的同学可以在这个网站在线转换试试：https://astexplorer.net/
+从图中我们可以看到，一个简单的`HTML`标签的代码被转换成了一个`JS`对象，而这个对象中的属性代表了这个标签中一些关键有效信息。如图中标识。 有兴趣的同学可以在这个网站在线转换试试：<https://astexplorer.net/>
 
 ### [#](https://vue-js.com/learn-vue/complie/#_4-2-具体流程)4.2 具体流程
 
@@ -1717,8 +1642,6 @@ export const createCompiler = createCompilerCreator(function baseCompile (
 })
 ```
 
-
-
 可以看到 `baseCompile` 的代码非常的简短主要核心代码。
 
 - **const ast =parse(template.trim(), options)**:`parse` 会用正则等方式解析 `template` 模板中的指令、`class`、`style`等数据，形成`AST`。
@@ -1729,13 +1652,11 @@ export const createCompiler = createCompilerCreator(function baseCompile (
 
 ```js
 {
- 	ast: ast,
- 	render: code.render,
- 	staticRenderFns: code.staticRenderFns
+  ast: ast,
+  render: code.render,
+  staticRenderFns: code.staticRenderFns
  }
 ```
-
-
 
 最终返回了抽象语法树( ast )，渲染函数( render )，静态渲染函数( staticRenderFns )，且`render` 的值为`code.render`，`staticRenderFns` 的值为`code.staticRenderFns`，也就是说通过 `generate`处理 `ast`之后得到的返回值 `code` 是一个对象。
 
@@ -1794,8 +1715,6 @@ export function parse(template, options) {
 }
 ```
 
-
-
 从上面代码中可以看到，`parse` 函数就是解析器的主函数，在`parse` 函数内调用了`parseHTML` 函数对模板字符串进行解析，在`parseHTML` 函数解析模板字符串的过程中，如果遇到文本信息，就会调用文本解析器`parseText`函数进行文本解析；如果遇到文本中包含过滤器，就会调用过滤器解析器`parseFilters`函数进行解析。
 
 ## [#](https://vue-js.com/learn-vue/complie/parse.html#_3-总结)3. 总结
@@ -1806,7 +1725,7 @@ export function parse(template, options) {
 
 ## 3.3模板分析阶段(html)
 
-##  1. 前言
+## 1. 前言
 
 上篇文章中我们说到，在模板解析阶段主线函数`parse`中，根据要解析的内容不同会调用不同的解析器，
 
@@ -1854,8 +1773,6 @@ export function parse(template, options) {
 }
 ```
 
-
-
 从代码中我们可以看到，调用`parseHTML`函数时为其传入的两个参数分别是：
 
 - template:待转换的模板字符串；
@@ -1870,9 +1787,9 @@ export function parse(template, options) {
   ```javascript
   // 当解析到标签的开始位置时，触发start
   start (tag, attrs, unary) {
-  	let element = createASTElement(tag, attrs, currentParent)
+   let element = createASTElement(tag, attrs, currentParent)
   }
-  
+
   export function createASTElement (tag,attrs,parent) {
     return {
       type: 1,
@@ -1885,8 +1802,6 @@ export function parse(template, options) {
   }
   ```
 
-  
-
   从上面代码中我们可以看到，`start`函数接收三个参数，分别是标签名`tag`、标签属性`attrs`、标签是否自闭合`unary`。当调用该钩子函数时，内部会调用`createASTElement`函数来创建元素类型的`AST`节点
 
 - 当解析到结束标签时调用`end`函数；
@@ -1896,7 +1811,7 @@ export function parse(template, options) {
   ```javascript
   // 当解析到标签的文本时，触发chars
   chars (text) {
-  	if(text是带变量的动态文本){
+   if(text是带变量的动态文本){
       let element = {
         type: 2,
         expression: res.expression,
@@ -1912,8 +1827,6 @@ export function parse(template, options) {
   }
   ```
 
-  
-
   当解析到标签的文本时，触发`chars`钩子函数，在该钩子函数内部，首先会判断文本是不是一个带变量的动态文本，如“hello ”。如果是动态文本，则创建动态文本类型的`AST`节点；如果不是动态文本，则创建纯静态文本类型的`AST`节点。
 
 - 当解析到注释时调用`comment`函数生成注释类型的`AST`节点；
@@ -1928,8 +1841,6 @@ export function parse(template, options) {
     }
   }
   ```
-
-  
 
   当解析到标签的注释时，触发`comment`钩子函数，该钩子函数会创建一个注释类型的`AST`节点。
 
@@ -1973,8 +1884,6 @@ if (comment.test(html)) {
 }
 ```
 
-
-
 在上面代码中，如果模板字符串`html`符合注释开始的正则，那么就继续向后查找是否存在`-->`，若存在，则把`html`从第4位（"<!--"长度为4）开始截取，直到`-->`处，截取得到的内容就是注释的真实内容，然后调用4个钩子函数中的`comment`函数，将真实的注释内容传进去，创建注释类型的`AST`节点。
 
 上面代码中有一处值得注意的地方，那就是我们平常在模板中可以在`<template></template>`标签上配置`comments`选项来决定在渲染模板时是否保留注释，对应到上面代码中就是`options.shouldKeepComment`,如果用户配置了`comments`选项为`true`，则`shouldKeepComment`为`true`，则创建注释类型的`AST`节点，如不保留注释，则将游标移动到'-->'之后，继续向后解析。
@@ -1987,8 +1896,6 @@ function advance (n) {
   html = html.substring(n)
 }
 ```
-
-
 
 为了更加直观地说明 `advance` 的作用，请看下图： ![img](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAACpCAYAAABK4GjNAAAgAElEQVR4nO2dB7QdRRnH54UXSkCkCgSQXqRDqCo9QFCkdxDpVUITLDTpvYOCEESq9N5LQELvNRTphCICEjF0Ir8559szb9/evXvv3XfvTt7/d849t+ze2d3Zma/NN7Nd47/DNcg777zjBg8e3OjfevHf//7Xfe9735vgylH95KP6yUf1k4/qJ5/+VD8DWi5VCCGE6ABSYEIIIaJECkwIIUSUSIEJIYSIEikwIYQQUdI1duzYhrMQy8oqmVBR/eSj+slH9ZOP6ief/lQ/3c1caAzplSpH5agclaNyJuxyFEIUQggRJVJgQgghokQKTAghRJRIgQkhhIgSKTAhhBBR0pICe+ONN9zOO+/slllmGXfIIYe4Tz75pKzzqstrr73m1lprLTdkyBC30korudNOO61txxZCCNF5mlZg33zzjbvsssvcI4884r7++mt33XXXuVGjRpV5bkIIIURNWvLAuru7yzoPIYQQoiGaVmATTTSRW3/99d1SSy3lFdm6667rll9++TLPTQghhKhJSy7UbLPN5s4888yyzkUIIYQojLIQhRBCRElLCuzaa6/1WYD2euyxx3K3ffHFF+7iiy/2oUd+4/2kk05yH330UWb53377rXvwwQfdbrvt5pZbbjn/ny233NLdd999flsReLz26aef7tZee23/fzImt9lmG5908tlnnyX7cQ577713cr7sd//99/co6+2333Ybb7xxsg/nNXbs2CZqTgghRKu0LQtj3Lhx7sgjj3Q33HBD8htK48ILL3SjR4/226abbrpkG8qO8OT555/foxz2RdEw5panxNjGsY466ij35ZdfJr+TMfn000/71xVXXOEOO+wwHwqdZppp3GabbeZeeOEFf67sd+WVV7pFFlnETTHFFD7r8vrrr3evvPKKL2fKKaf0Uwh4F0II0X7aFkI85ZRTeiivELyzkSNHJt/Hjx/vrr766l7Ky0C5oHzef//9mse76aab3BFHHNFDeaV57rnn3Kmnnuo+/fRT/32JJZZwm2yySbKdaQFPPvmk//zmm2+6G2+8Mdm20047uYUWWqhm2UIIIfqWtimwDz/80B166KHu4Ycf9qG57bbbrsf2Z599NlE2Y8aM8XPMDLycAw880P+PeWcjRozwXlMtPvjgA3fppZd6RQeLLrqou/zyy/1/KWPfffdNpgCgpF588UX/mczKjTbayM0333z+O/9HkTJBG2/s3Xff9b8zcZpJ1F1dXSXVjhBCiEZpmwJj7GjYsGFeSUwyySRuww03dPPMM0+y/a233nKff/65/0wYj1U+DMa91llnHf+/AQMGuMUWW8yHEWvNQ3vqqafc888/7z8TGtxnn33cnHPO6f9LGZzH/PPP77ejpF566aXkvzPMMIPbdttteyg4lOEdd9zhv88000xu11139WFFIYQQnaObh4Q1A/8zhWMwdmTlpbfNPffcfruB9zLrrLO6l19+2X/H+yIhgt9RQMZkk03mFl544STMZ0w11VRu2mmnTcKI/N+OHf6fcbatttoq91pI9LD/8o6CHDp0qLvlllu8gjvrrLOSfVGm008/vatXb83Wq8pROSpH5aicYuW09ETmSSedtMfvgwYNSp6Ymd6GJxQea+DAgT1CcHhmeDXsM/HEEye/o6hQGOnznHzyyb1HZfAf2yf8fxHsv3ZdvAgl3n333T0U8SyzzOKzIeslbsTwJFOVo3JUjsqJvZzKrwVFNmFWtmGt39MQ8mOh3znmmKPwMVFa11xzTS8vkjR6xtL22msvr3CFEEJ0jkpOZA7T6QkRkuARQpbiM888UzMLEU/JIPGCkCL/KQL73Xbbbe7mm2/23/H+Vl999WQ789tIRBFCCNFZKqnAFlhgAR+ONM4++2yfTMFcLF533XWXT8uvBentKB6DfVE8NgaH58bYGJOZ77zzzh7/ffXVV915552XZDAyFjZ8+HB/TkAZnA+ZjkIIITpHJRUYaewrrLBC8h0vao899nBLL720f+23334+aaNWFiIZh0x0NkgOYcIyiw2zggYLEK+22mr+GWZhcggrczD3zDIgCT9usMEG/p2sSQOPjrR6lKkQQojOUEkFRgLIjjvu6BZccMHM7cwBO+igg3p4WSGMT5F5uOmmmxY+JqFDPLtwsvV6663nZp99dv955ZVXdssuu2yyjdR6m+QshBCi/VRSgQFK6owzzvCel01aJvsPpUJSxrzzzpv7f0KQzP8655xz/BwyUu6NmWee2a2yyip+FY4111zT/0boMFz5Y6655nJrrLFGkinJsVlqyrw+vLpzzz1XayEKIUSH6BpfNLshgHlTgwcPbvngMaRpNoPqJx/VTz6qn3xUP/n0p/qprAcmhBBC5CEFJoQQIkqkwIQQQkSJFJgQQogokQITQggRJVJgQgghokQKTAghRJRIgQkhhIgSKTAhhBBR0jVmzJiGV+IoC3uI5IRWTllU7bpUP+0ppyyqdl2qn/aUUxZVu66scrSUVB+Uo/rJR/WTj+onH9VPPv2pfhRCFEIIESVSYEIIIaJECkwIIUSUSIEJIYSIEikwIYQQUSIFJoQQIkqkwIQQQkRJFAps9OjRbsiQIf7FZyGEECIKBSaEEEKkkQITQggRJVJgQgghokQKTAghRJRIgQkhhIgSKTAhhBBRIgUmhBAiSqTAhBBCREl3s0/KLOvJoUXKGTduXI/PWf9p5/moHJWjclSOyul8Od3NPCmz3U/qHDRoUI/P6f/E8ORQlaNyVI7KUTnllqMQohBCiCiRAhNCCBElUmBCCCGiRApMCCFElEiBCSGEiBIpMCGEEFEiBSaEECJKpMCEEEJEiRSYEEKIKJECE0IIESVSYEIIIaJECkwIIUSUSIEJIYSIEikwIYQQUSIFJoQQIkqkwIQQQkSJnsisclSOylE5KifKcvREZpWjclSOylE5UZajEKIQQogokQITQggRJVJgQgghokQKTAghRJRIgQkhhIgSKTAhhBBRIgUmhBAiSqTAhBBCRIkUmBBCiCiRAhNCCBElUmBCCCGiRApMCCFElEiBCSGEiBIpMCGEEFEiBSaEECJKpMCEEEJEiZ7IrHJUjspROSonynL0RGaVo3JUjspROVGWoxCiEEKIKJECE0IIESVSYEIIIaJECkwIIUSUSIEJIYSIEikwIYQQUSIFJoQQIkq6O30Cae655x43atSoHr99/PHHyecRI0a4qaeeusf2IUOGuGHDhrXl/IQQQlSDyimwFVdc0R1wwAE9Vt8IGTlyZI/vTGwePnx4O05NCCFEhahkCHGllVbqk32FEEJMOFRSgeGF9cW+QgghJhwqq8AmnnjiuvuxjxSYEEL0TyqpwAYOHFhIMbEP+wohhOh/VFKBQVEFJoQQon9SaQXW1dVVczvbpMCEEKL/UlkFRnp8noJiW/icMCGEEP2LrjFjxozv1MF5OFnekzrvuOMOd8opp2Ru22OPPdzQoUMLlVPW+bSbql2X6qc95ZRF1a5L9dOecsqiateVVU7X+O9otKB33nnHDR48uOUTqvekzrFjx7qVV145cxsTmqeccspC5ZR1PkVpV/3EWo7qJx/VTz6qn3z6U/1UNoQIKKif/OQnvX7nN1NeQggh+ieVVmCQNQ6m5A0hhBCVV2BZS0Vp+SghhBCVV2DTTjutW3DBBZPvfOY3IYQQ/ZvKKzDgcSlZn4UQQvRfolBgm2yySeZnIYQQ/ZfKPQ8sixlnnNEtvvjiyWchhBAiCgUGStwQQggREo0CU+q8EEKIkGgU2KyzztrpUxBCCFEhokjiEEJk89prr7m11lrLZ+fyzveq8Nhjj/nz4nXaaaflbr/22muT3//zn/+4X/3qV/73/fff333++eeZ5YfXnrdfFt9++637+OOP3UMPPeTPjbVVP/jgg8YvUnSUaDywsqHDHHroocn3v/zlL27eeef1n9944w131FFHuSeeeML97Gc/c3vuuaf7/ve/36lT7QUdnA737LPP+u/Dhg1zBx54oJt00kk7fGaiLBCwn376qX//8MMP3b///W/3/vvvu7ffftu98MILbsyYMW7DDTd0yy67bK//fvPNN+68887zjxzacsstaz7dHAWy4447tnyu9J2qTW9hiVfqj7pgbcCPPvrIvfTSS75vU3+vv/66+/rrr5P9u7u73csvv+ymn376Dp51fbLkltU913j88cf7RdCXXnpp9/vf/97NPPPMnTrVttBvFVgtaPCXXXaZe+SRR/z36667zi255JLu5z//eYfPTBih4N10003d3nvv7W644YakY2+99dZu9913b/k4WPSHHXaYu+WWW9w000zjTj/9dDfDDDMkxsNMM83krfc55pij5WOF0ObOPvvsuvu98sorbokllujx25dffumF2jnnnOO/P/zww+4Pf/iD++EPf1jqOTZLLaXJvQsFs0Hd84KFFlqo5tMpQtIGXhFQZnhjyyyzjJtoookK/69Z7r//frfXXnv54y6wwALuxBNPbNkAvfXWW/0LHnjgAd+OdtlllzJOt7IohJgB1piIAzp9WuD0hbCeZJJJenkyrAgz9dRTl36soivNvPjii76thvvzfZFFFvHKFTDECMfdfPPN3psTPcFDwQhCMW633XZtUV4YGXhJ5gGSYT3ddNO1XG5/lFv974rrQANef/31vXAghEiMffnll+/0aYkA7hGdNQwBzTLLLKUfZ8CAAb2EAgqTYzVi3TcKStGOw7Uy1oPQA5Toj3/8Y/+YIbyF9Plxzjyt4ayzznJ/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)
 
@@ -2024,8 +1931,6 @@ if (conditionalComment.test(html)) {
 }
 ```
 
-
-
 ### [#](https://vue-js.com/learn-vue/complie/HTMLParse.html#_3-3-解析doctype)3.3 解析DOCTYPE
 
 解析`DOCTYPE`的原理同解析条件注释完全相同，此处不再赘述，代码如下：
@@ -2039,8 +1944,6 @@ if (doctypeMatch) {
   continue
 }
 ```
-
-
 
 ### [#](https://vue-js.com/learn-vue/complie/HTMLParse.html#_3-4-解析开始标签)3.4 解析开始标签
 
@@ -2072,8 +1975,6 @@ if (start) {
 // 以文本开始的模板：
 '我是文本</p>'.match(startTagOpen) => null
 ```
-
-
 
 在上面代码中，我们用不同类型的内容去匹配开始标签的正则，发现只有`<div></div>`的字符串可以正确匹配，并且返回一个数组。
 
@@ -2213,8 +2114,6 @@ function parseStartTag () {
 }
 ```
 
-
-
 通过源码可以看到，调用`parseStartTag`函数，如果模板字符串符合开始标签的特征，则解析开始标签，并将解析结果返回，如果不符合开始标签的特征，则返回`undefined`。
 
 解析完毕后，就可以用解析得到的结果去调用`start`钩子函数去创建元素型的`AST`节点了。
@@ -2257,8 +2156,6 @@ function handleStartTag (match) {
   }
 ```
 
-
-
 `handleStartTag`函数用来对`parseStartTag`函数的解析结果进行进一步处理，它接收`parseStartTag`函数的返回值作为参数。
 
 `handleStartTag`函数的开始定义几个常量：
@@ -2287,8 +2184,6 @@ for (let i = 0; i < l; i++) {
 }
 ```
 
-
-
 上面代码中，首先定义了 `args`常量，它是解析出来的标签属性数组中的每一个属性对象，即`match.attrs` 数组中每个元素对象。 它长这样：
 
 ```javascript
@@ -2309,8 +2204,6 @@ const shouldDecodeNewlines = tagName === 'a' && args[1] === 'href'
     : options.shouldDecodeNewlinesconst value = args[3] || args[4] || args[5] || ''
 ```
 
-
-
 最后将处理好的结果存入之前定义好的与`match.attrs`数组长度相等的`attrs`数组中，如下：
 
 ```javascript
@@ -2319,8 +2212,6 @@ attrs[i] = {
     value: decodeAttr(value, shouldDecodeNewlines) // 标签属性的属性值，如class对应的a
 }
 ```
-
-
 
 最后，如果该标签是非自闭合标签，则将标签推入栈中（关于栈这个概念后面会说到），如下：
 
@@ -2331,8 +2222,6 @@ if (!unary) {
 }
 ```
 
-
-
 如果该标签是自闭合标签，现在就可以调用`start`钩子函数并传入处理好的参数来创建`AST`节点了，如下：
 
 ```javascript
@@ -2340,8 +2229,6 @@ if (options.start) {
     options.start(tagName, attrs, unary, match.start, match.end)
 }
 ```
-
-
 
 以上就是开始标签的解析以及调用`start`钩子函数创建元素型的`AST`节点的所有过程。
 
@@ -2361,8 +2248,6 @@ const endTagMatch = html.match(endTag)
 '<div>'.match(endTag)  // null
 ```
 
-
-
 上面代码中，如果模板字符串符合结束标签的特征，则会获得匹配结果数组；如果不合符，则得到null。
 
 接着再调用`end`钩子函数，如下：
@@ -2375,8 +2260,6 @@ if (endTagMatch) {
     continue
 }
 ```
-
-
 
 在上面代码中，没有直接去调用`end`函数，而是调用了`parseEndTag`函数，关于`parseEndTag`函数内部的作用我们后面会介绍到，在这里你暂时可以理解为该函数内部就是去调用了`end`钩子函数。
 
@@ -2434,8 +2317,6 @@ if (options.chars && text) {
 }
 ```
 
-
-
 源码的逻辑很清晰，根据`<`在不在第一个位置以及整个模板字符串里没有`<`都分别进行了处理。
 
 值得深究的是如果`<`不在第一个位置而在模板字符串中间某个位置，那么说明模板字符串是以文本开头的，那么从开头到第一个`<`出现的位置就都是文本内容了，接着我们还要从第一个`<`的位置继续向后判断，因为还存在这样一种情况，那就是如果文本里面本来就包含一个`<`，例如`1<2</div>`。为了处理这种情况，我们把从第一个`<`的位置直到模板字符串结束都截取出来记作`rest`，如下：
@@ -2482,8 +2363,6 @@ while (
 }
 ```
 
-
-
 最后截取文本内容`text`并调用4个钩子函数中的`chars`函数创建文本型的`AST`节点。
 
 ## [#](https://vue-js.com/learn-vue/complie/HTMLParse.html#_4-如何保证ast节点层级关系)4. 如何保证AST节点层级关系
@@ -2497,8 +2376,6 @@ while (
 ```html
 <div><p><span></span></p></div>
 ```
-
-
 
 当解析到开始标签`<div>`时，就把`div`推入栈中，然后继续解析，当解析到`<p>`时，再把`p`推入栈中，同理，再把`span`推入栈中，当解析到结束标签`</span>`时，此时栈顶的标签刚好是`span`的开始标签，那么就用`span`的开始标签和结束标签构建`AST`节点，并且从栈中把`span`的开始标签弹出，那么此时栈中的栈顶标签`p`就是构建好的`span`的`AST`节点的父节点，如下图：
 
@@ -2522,19 +2399,19 @@ OK，有了这个栈的概念之后，我们再回看上一章`HTML`解析器解
 
 ```javascript
 function parseHTML(html, options) {
-	var stack = [];
-	var expectHTML = options.expectHTML;
-	var isUnaryTag$$1 = options.isUnaryTag || no;
-	var canBeLeftOpenTag$$1 = options.canBeLeftOpenTag || no;
-	var index = 0;
-	var last, lastTag;
+ var stack = [];
+ var expectHTML = options.expectHTML;
+ var isUnaryTag$$1 = options.isUnaryTag || no;
+ var canBeLeftOpenTag$$1 = options.canBeLeftOpenTag || no;
+ var index = 0;
+ var last, lastTag;
 
-	// 开启一个 while 循环，循环结束的条件是 html 为空，即 html 被 parse 完毕
-	while (html) {
-		last = html;
-		// 确保即将 parse 的内容不是在纯文本标签里 (script,style,textarea)
-		if (!lastTag || !isPlainTextElement(lastTag)) {
-		   let textEnd = html.indexOf('<')
+ // 开启一个 while 循环，循环结束的条件是 html 为空，即 html 被 parse 完毕
+ while (html) {
+  last = html;
+  // 确保即将 parse 的内容不是在纯文本标签里 (script,style,textarea)
+  if (!lastTag || !isPlainTextElement(lastTag)) {
+     let textEnd = html.indexOf('<')
               /**
                * 如果html字符串是以'<'开头,则有以下几种可能
                * 开始标签:<div>
@@ -2546,7 +2423,7 @@ function parseHTML(html, options) {
                */
             if (textEnd === 0) {
                 // 解析是否是注释
-        		if (comment.test(html)) {
+          if (comment.test(html)) {
 
                 }
                 // 解析是否是条件注释
@@ -2583,38 +2460,36 @@ function parseHTML(html, options) {
             if (options.chars && text) {
                 options.chars(text)
             }
-		} else {
-			// 父元素为script、style、textarea时，其内部的内容全部当做纯文本处理
-		}
+  } else {
+   // 父元素为script、style、textarea时，其内部的内容全部当做纯文本处理
+  }
 
-		//将整个字符串作为文本对待
-		if (html === last) {
-			options.chars && options.chars(html);
-			if (!stack.length && options.warn) {
-				options.warn(("Mal-formatted tag at end of template: \"" + html + "\""));
-			}
-			break
-		}
-	}
+  //将整个字符串作为文本对待
+  if (html === last) {
+   options.chars && options.chars(html);
+   if (!stack.length && options.warn) {
+    options.warn(("Mal-formatted tag at end of template: \"" + html + "\""));
+   }
+   break
+  }
+ }
 
-	// Clean up any remaining tags
-	parseEndTag();
-	//parse 开始标签
-	function parseStartTag() {
+ // Clean up any remaining tags
+ parseEndTag();
+ //parse 开始标签
+ function parseStartTag() {
 
-	}
-	//处理 parseStartTag 的结果
-	function handleStartTag(match) {
+ }
+ //处理 parseStartTag 的结果
+ function handleStartTag(match) {
 
-	}
-	//parse 结束标签
-	function parseEndTag(tagName, start, end) {
+ }
+ //parse 结束标签
+ function parseEndTag(tagName, start, end) {
 
-	}
+ }
 }
 ```
-
-
 
 上述代码中大致可分为三部分：
 
@@ -2635,8 +2510,6 @@ let index = 0   //解析游标，标识当前从何处开始解析模板字符�
 let last,   // 存储剩余还未解析的模板字符串
     lastTag  // 存储着位于 stack 栈顶的元素
 ```
-
-
 
 接着开启`while` 循环，循环的终止条件是 模板字符串`html`为空，即模板字符串被全部编译完毕。在每次`while`循环中， 先把 `html`的值赋给变量 `last`，如下：
 
@@ -2741,8 +2614,6 @@ function parseEndTag (tagName, start, end) {
 }
 ```
 
-
-
 该函数接收三个参数，分别是结束标签名`tagName`、结束标签在`html`字符串中的起始和结束位置`start`和`end`。
 
 这三个参数其实都是可选的，根据传参的不同其功能也不同。
@@ -2766,31 +2637,27 @@ if (tagName) {
 }
 ```
 
-
-
 接着当`pos>=0`时，开启一个`for`循环，从栈顶位置从后向前遍历直到`pos`处，如果发现`stack`栈中存在索引大于`pos`的元素，那么该元素一定是缺少闭合标签的。这是因为在正常情况下，`stack`栈的栈顶元素应该和当前的结束标签`tagName` 匹配，也就是说正常的`pos`应该是栈顶位置，后面不应该再有元素，如果后面还有元素，那么后面的元素就都缺少闭合标签 那么这个时候如果是在非生产环境会抛出警告，告诉你缺少闭合标签。除此之外，还会调用 `options.end(stack[i].tag, start, end)`立即将其闭合，这是为了保证解析结果的正确性。
 
 ```javascript
 if (pos >= 0) {
-	// Close all the open elements, up the stack
-	for (var i = stack.length - 1; i >= pos; i--) {
-		if (i > pos || !tagName ) {
-			options.warn(
-				("tag <" + (stack[i].tag) + "> has no matching end tag.")
-			);
-		}
-		if (options.end) {
-			options.end(stack[i].tag, start, end);
-		}
-	}
+ // Close all the open elements, up the stack
+ for (var i = stack.length - 1; i >= pos; i--) {
+  if (i > pos || !tagName ) {
+   options.warn(
+    ("tag <" + (stack[i].tag) + "> has no matching end tag.")
+   );
+  }
+  if (options.end) {
+   options.end(stack[i].tag, start, end);
+  }
+ }
 
-	// Remove the open elements from the stack
-	stack.length = pos;
-	lastTag = pos && stack[pos - 1].tag;
+ // Remove the open elements from the stack
+ stack.length = pos;
+ lastTag = pos && stack[pos - 1].tag;
 }
 ```
-
-
 
 最后把`pos`位置以后的元素都从`stack`栈中弹出，以及把`lastTag`更新为栈顶元素:
 
@@ -2798,8 +2665,6 @@ if (pos >= 0) {
 stack.length = pos;
 lastTag = pos && stack[pos - 1].tag;
 ```
-
-
 
 接着，如果`pos`没有大于等于0，即当 `tagName` 没有在 `stack` 栈中找到对应的开始标签时，`pos` 为 -1 。那么此时再判断 `tagName` 是否为`br` 或`p`标签，为什么要单独判断这两个标签呢？这是因为在浏览器中如果我们写了如下`HTML`：
 
@@ -2809,8 +2674,6 @@ lastTag = pos && stack[pos - 1].tag;
     </p>
 </div>
 ```
-
-
 
 浏览器会自动把`</br>`标签解析为正常的 <br>标签，而对于`</p>`浏览器则自动将其补全为`<p></p>`，所以`Vue`为了与浏览器对这两个标签的行为保持一致，故对这两个便签单独判断处理，如下：
 
@@ -2831,8 +2694,6 @@ if (lowerCasedTagName === 'p') {
 }
 ```
 
-
-
 以上就是对结束标签的解析与处理。
 
 另外，在`while`循环后面还有一行代码：
@@ -2840,8 +2701,6 @@ if (lowerCasedTagName === 'p') {
 ```javascript
 parseEndTag()
 ```
-
-
 
 这行代码执行的时机是`html === last`，即`html`字符串中的标签格式有误时会跳出`while`循环，此时就会执行这行代码，这行代码是调用`parseEndTag`函数并不传递任何参数，前面我们说过如果`parseEndTag`函数不传递任何参数是用于处理栈中剩余未处理的标签。这是因为如果不传递任何函数，此时`parseEndTag`函数里的`pos`就为0，那么`pos>=0`就会恒成立，那么就会逐个警告缺少闭合标签，并调用 `options.end`将其闭合。
 
@@ -2882,8 +2741,6 @@ chars (text) {
 }
 ```
 
-
-
 从上面代码中可以看到，创建含有变量的`AST`节点时节点的`type`属性为2，并且相较于不包含变量的`AST`节点多了两个属性：`expression`和`tokens`。那么如何来判断文本里面是否包含变量以及多的那两个属性是什么呢？这就涉及到文本解析器了，当`Vue`用`HTML`解析器解析出文本时，再将解析出来的文本内容传给文本解析器，最后由文本解析器解析该段文本里面是否包含变量以及如果包含变量时再解析`expression`和`tokens`。那么接下来，本篇文章就来分析一下文本解析器都干了些什么。
 
 ## [#](https://vue-js.com/learn-vue/complie/textParse.html#_2-结果分析)2. 结果分析
@@ -2909,12 +2766,10 @@ res = {
         {'@binding': name },
         "，我今年"
         {'@binding': age },
-    	"岁了"
+     "岁了"
     ]
 }
 ```
-
-
 
 从上面的结果中我们可以看到，`expression`属性就是把文本中的变量和非变量提取出来，然后把变量用`_s()`包裹，最后按照文本里的顺序把它们用`+`连接起来。而`tokens`是个数组，数组内容也是文本中的变量和非变量，不一样的是把变量构造成`{'@binding': xxx}`。
 
@@ -2987,8 +2842,6 @@ export function parseText (text,delimiters) {
 }
 ```
 
-
-
 我们看到，除开我们自己加的注释，代码其实不复杂，我们逐行分析。
 
 `parseText`函数接收两个参数，一个是传入的待解析的文本内容`text`，一个包裹变量的符号`delimiters`。第一个参数好理解，那第二个参数是干什么的呢？别急，我们看函数体内第一行代码：
@@ -3042,8 +2895,6 @@ tagRE.exec("hello")
 //返回：null
 ```
 
-
-
 可以看到，当匹配上时，匹配结果的第一个元素是字符串中第一个完整的带有包裹的变量，第二个元素是第一个被包裹的变量名，第三个元素是第一个变量在字符串中的起始位置。
 
 接着往下看循环体内：
@@ -3067,8 +2918,6 @@ while ((match = tagRE.exec(text))) {
   }
 ```
 
-
-
 上面代码中，首先取得字符串中第一个变量在字符串中的起始位置赋给`index`，然后比较`index`和`lastIndex`的大小，此时你可能有疑问了，这个`lastIndex`是什么呢？在上面定义变量中，定义了`let lastIndex = tagRE.lastIndex = 0`,所以`lastIndex`就是`tagRE.lastIndex`，而`tagRE.lastIndex`又是什么呢？当调用`exec( )`的正则表达式对象具有修饰符`g`时，它将把当前正则表达式对象的`lastIndex`属性设置为紧挨着匹配子串的字符位置，当同一个正则表达式第二次调用`exec( )`，它会将从`lastIndex`属性所指示的字符串处开始检索，如果`exec( )`没有发现任何匹配结果，它会将`lastIndex`重置为0。示例如下：
 
 ```javascript
@@ -3076,8 +2925,6 @@ const tagRE = /\{\{((?:.|\n)+?)\}\}/g
 tagRE.exec("hello {{name}}，I am {{age}}")
 tagRE.lastIndex   // 14
 ```
-
-
 
 从示例中可以看到，`tagRE.lastIndex`就是第一个包裹变量最后一个`}`所在字符串中的位置。`lastIndex`初始值为0。
 
@@ -3091,8 +2938,6 @@ if (index > lastIndex) {
 }
 ```
 
-
-
 如果`index`不大于`lastIndex`，那说明`index`也为0，即该文本一开始就是变量，例如：`hello`。那么此时变量前面没有纯文本，那就不用截取，直接取出匹配结果的第一个元素变量名，将其用`_s()`包裹存入`tokens`中，同时再把变量名构造成`{'@binding': exp}`存入`rawTokens`中，如下：
 
 ```javascript
@@ -3103,15 +2948,11 @@ tokens.push(`_s(${exp})`)
 rawTokens.push({ '@binding': exp })
 ```
 
-
-
 接着，更新`lastIndex`以保证下一轮循环时，只从`}}`后面再开始匹配正则，如下：
 
 ```javascript
 lastIndex = index + match[0].length
 ```
-
-
 
 接着，当`while`循环完毕时，表明文本中所有变量已经被解析完毕，如果此时`lastIndex < text.length`，那就说明最后一个变量的后面还有纯文本，那就将其再存入`tokens`和`rawTokens`中，如下：
 
@@ -3125,8 +2966,6 @@ if (lastIndex < text.length) {
 }
 ```
 
-
-
 最后，把`tokens`数组里的元素用`+`连接，和`rawTokens`一并返回，如下：
 
 ```javascript
@@ -3136,15 +2975,13 @@ return {
 }
 ```
 
-
-
 以上就是文本解析器`parseText`函数的所有逻辑了。
 
 ## [#](https://vue-js.com/learn-vue/complie/textParse.html#_4-总结)4. 总结
 
 本篇文章介绍了文本解析器的内部工作原理，文本解析器的作用就是将`HTML`解析器解析得到的文本内容进行二次解析，解析文本内容中是否包含变量，如果包含变量，则将变量提取出来进行加工，为后续生产`render`函数做准备。
 
-##  3.5 优化阶段
+## 3.5 优化阶段
 
 ## [#](https://vue-js.com/learn-vue/complie/optimize.html#_1-前言)1. 前言
 
@@ -3159,8 +2996,6 @@ return {
     <li>我是文本信息</li>
 </ul>
 ```
-
-
 
 在上面代码中，`ul`标签下面有5个`li`标签，每个`li`标签里的内容都是不含任何变量的纯文本，也就是说这种标签一旦第一次被渲染成`DOM`节点以后，之后不管状态再怎么变化它都不会变了，我们把像`li`的这种节点称之为静态节点。而这5个`li`节点的父节点是`ul`节点，也就是说`ul`节点的所有子节点都是静态节点，那么我们把像`ul`的这种节点称之为静态根节点。
 
@@ -3186,8 +3021,6 @@ export function optimize (root: ?ASTElement, options: CompilerOptions) {
   markStaticRoots(root, false)
 }
 ```
-
-
 
 接下来，我们就对所干的这两件事逐个分析。
 
@@ -3229,7 +3062,6 @@ function markStatic (node: ASTNode) {
 }
 ```
 
-
 在上面代码中，首先调用`isStatic`函数标记节点是否为静态节点，该函数若返回`true`表示该节点是静态节点，若返回`false`表示该节点不是静态节点，函数实现如下：
 
 ```javascript
@@ -3251,8 +3083,6 @@ function isStatic (node: ASTNode): boolean {
 }
 ```
 
-
-
 该函数的实现过程其实也说明了如何判断一个节点是否为静态节点。还记得在`HTML`解析器在调用钩子函数创建`AST`节点时会根据节点类型的不同为节点加上不同的`type`属性，用`type`属性来标记`AST`节点的节点类型，其对应关系如下：
 
 | type取值 | 对应的AST节点类型      |
@@ -3269,8 +3099,6 @@ if (node.type === 2) { // 包含变量的动态文本节点
 }
 ```
 
-
-
 如果`type`值为2，那么该节点是不包含变量的纯文本节点，它就肯定是静态节点，返回`true`；
 
 ```javascript
@@ -3278,8 +3106,6 @@ if (node.type === 3) { // 不包含变量的纯文本节点
     return true
 }
 ```
-
-
 
 如果`type`值为1,说明该节点是元素节点，那就需要进一步判断。
 
@@ -3294,8 +3120,6 @@ node.pre ||
     Object.keys(node).every(isStaticKey)
 )
 ```
-
-
 
 如果元素节点是静态节点，那就必须满足以下几点要求：
 
@@ -3328,8 +3152,6 @@ for (let i = 0, l = node.children.length; i < l; i++) {
 }
 ```
 
-
-
 注意，在上面代码中，新增了一个判断：
 
 ```javascript
@@ -3337,7 +3159,6 @@ if (!child.static) {
     node.static = false
 }
 ```
-
 
 这个判断的意思是如果当前节点的子节点有一个不是静态节点，那就把当前节点也标记为非静态节点。为什么要这么做呢？这是因为我们在判断的时候是从上往下判断的，也就是说先判断当前节点，再判断当前节点的子节点，如果当前节点在一开始被标记为了静态节点，但是通过判断子节点的时候发现有一个子节点却不是静态节点，这就有问题了，我们之前说过一旦标记为静态节点，就说明这个节点首次渲染之后不会再发生任何变化，但是它的一个子节点却又是可以变化的，就出现了自相矛盾，所以我们需要当发现它的子节点中有一个不是静态节点的时候，就得把当前节点重新设置为非静态节点。
 
@@ -3354,8 +3175,6 @@ if (node.ifConditions) {
     }
 }
 ```
-
-
 
 同理，如果当前节点的`node.ifConditions`中有一个子节点不是静态节点也要将当前节点设置为非静态节点。
 
@@ -3397,7 +3216,6 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
 }
 ```
 
-
 上面代码中，首先`markStaticRoots` 第二个参数是 `isInFor`，对于已经是 `static` 的节点或者是 `v-once` 指令的节点，`node.staticInFor = isInFor`，如下：
 
 ```javascript
@@ -3405,8 +3223,6 @@ if (node.static || node.once) {
     node.staticInFor = isInFor
 }
 ```
-
-
 
 接着判断该节点是否为静态根节点，如下：
 
@@ -3425,8 +3241,6 @@ if (node.static && node.children.length && !(
     node.staticRoot = false
 }
 ```
-
-
 
 从代码和注释中我们可以看到，一个节点要想成为静态根节点，它必须满足以下要求：
 
@@ -3451,8 +3265,6 @@ if (node.ifConditions) {
 }
 ```
 
-
-
 这里的原理跟寻找静态节点相同，此处就不再重复。
 
 ## [#](https://vue-js.com/learn-vue/complie/optimize.html#_4-总结)4. 总结
@@ -3467,7 +3279,7 @@ if (node.ifConditions) {
 
 ## 3.6 生成阶段
 
-##  1. 前言
+## 1. 前言
 
 经过前几篇文章，我们把用户所写的模板字符串先经过解析阶段解析生成对应的抽象语法树`AST`，接着再经过优化阶段将`AST`中的静态节点及静态根节点都打上标记，现在终于到了模板编译三大阶段的最后一个阶段了——代码生成阶段。所谓代码生成阶段，到底是要生成什么代码？答：要生成`render`函数字符串。
 
@@ -3484,7 +3296,6 @@ if (node.ifConditions) {
 ```html
 <div id="NLRX"><p>Hello {{name}}</p></div>
 ```
-
 
 该模板经过解析并优化后对应的`AST`如下：
 
@@ -3521,8 +3332,6 @@ ast = {
   }
 ```
 
-
-
 下面我们就来根据已有的这个`AST`来生成对应的`render`函数。生成`render`函数的过程其实就是一个递归的过程，从顶向下依次递归`AST`中的每一个节点，根据不同的`AST`节点类型创建不同的`VNode`类型。接下来我们就来对照已有的模板和`AST`实际演示一下生成`render`函数的过程。
 
 1. 首先，根节点`div`是一个元素型`AST`节点，那么我们就要创建一个元素型`VNode`，我们把创建元素型`VNode`的方法叫做`_c(tagName,data,children)`。我们暂且不管`_c()`是什么，只需知道调用`_c()`就可以创建一个元素型`VNode`。那么就可以生成如下代码：
@@ -3531,22 +3340,17 @@ ast = {
    _c('div',{attrs:{"id":"NLRX"}},[/*子节点列表*/])
    ```
 
-   
-
 2. 根节点`div`有子节点，那么我们进入子节点列表`children`里遍历子节点，发现子节点`p`也是元素型的，那就继续创建元素型`VNode`并将其放入上述代码中根节点的子节点列表中，如下：
 
    ```javascript
    _c('div',{attrs:{"id":"NLRX"}},[_c('p'),[/*子节点列表*/]])
    ```
 
-   
-
 3. 同理，继续遍历`p`节点的子节点，发现是一个文本型节点，那就创建一个文本型`VNode`并将其插入到`p`节点的子节点列表中，同理，创建文本型`VNode`我们调用`_v()`方法，如下：
 
    ```javascript
    _c('div',{attrs:{"id":"NLRX"}},[_c('p'),[_v("Hello "+_s(name))]])
    ```
-
 
 4. 到此，整个`AST`就遍历完毕了，我们将得到的代码再包装一下，如下：
 
@@ -3568,13 +3372,11 @@ ast = {
    `
    ```
 
-   
-
 5. 最后，我们将上面得到的这个函数字符串传递给`createFunction`函数（关于这个函数在后面会介绍到），`createFunction`函数会帮我们把得到的函数字符串转换成真正的函数，赋给组件中的`render`选项，从而就是`render`函数了。如下：
 
    ```javascript
    res.render = createFunction(compiled.render, fnGenErrors)
-   
+
    function createFunction (code, errors) {
      try {
        return new Function(code)
@@ -3584,8 +3386,6 @@ ast = {
      }
    }
    ```
-
-
 
 以上就是根据一个简单的模板所对应的`AST`生成`render`函数的过程，理论过程我们已经了解了，那么在源码中实际是如何实现的呢？下面我们就回归源码分析其具体实现过程。
 
@@ -3604,13 +3404,9 @@ export function generate (ast,option) {
 }
 ```
 
-
-
 ```javascript
 const code = generate(ast, options)
 ```
-
-
 
 调用`generate`函数并传入优化后得到的`ast`，在`generate`函数内部先判断`ast`是否为空，不为空则调用`genElement(ast, state)`函数创建`VNode`，为空则创建一个空的元素型`div`的`VNode`。然后将得到的结果用`with(this){return ${code}}`包裹返回。可以看出，真正起作用的是`genElement`函数，下面我们继续来看一下`genElement`函数内部是怎样的。
 
@@ -3654,8 +3450,6 @@ export function genElement (el: ASTElement, state: CodegenState): string {
 }
 ```
 
-
-
 `genElement`函数逻辑很清晰，就是根据当前 `AST` 元素节点属性的不同从而执行不同的代码生成函数。虽然元素节点属性的情况有很多种，但是最后真正创建出来的`VNode`无非就三种，分别是元素节点，文本节点，注释节点。接下来我们就着重分析一下如何生成这三种节点类型的`render`函数的。
 
 ### [#](https://vue-js.com/learn-vue/complie/codegen.html#_3-1-元素节点)3.1 元素节点
@@ -3673,8 +3467,6 @@ children ? `,${children}` : '' // children
 })`
 ```
 
-
-
 生成元素节点的`render`函数就是生成一个`_c()`函数调用的字符串，上文提到了`_c()`函数接收三个参数，分别是节点的标签名`tagName`，节点属性`data`，节点的子节点列表`children`。那么我们只需将这三部分都填进去即可。
 
 1. 获取节点属性data
@@ -3686,7 +3478,7 @@ children ? `,${children}` : '' // children
      let data = '{'
      const dirs = genDirectives(el, state)
      if (dirs) data += dirs + ','
-   
+
        // key
        if (el.key) {
            data += `key:${el.key},`
@@ -3707,7 +3499,6 @@ children ? `,${children}` : '' // children
        return data
    }
    ```
-
 
    我们看到，源码中`genData`虽然很长，但是其逻辑非常简单，就是在拼接字符串，先给`data`赋值为一个`{`，然后判断存在哪些属性数据，就将这些数据拼接到`data`中，最后再加一个`}`，最终得到节点全部属性`data`。
 
@@ -3732,8 +3523,6 @@ children ? `,${children}` : '' // children
    }
    ```
 
-  
-
 3. 上面两步完成之后，生成`_c（）`函数调用字符串，如下：
 
    ```javascript
@@ -3743,8 +3532,6 @@ children ? `,${children}` : '' // children
            children ? `,${children}` : '' // children
          })`
    ```
-
-  
 
 ### [#](https://vue-js.com/learn-vue/complie/codegen.html#_3-2-文本节点)3.2 文本节点
 
@@ -3759,8 +3546,6 @@ export function genText (text: ASTText | ASTExpression): string {
 }
 ```
 
-
-
 ### [#](https://vue-js.com/learn-vue/complie/codegen.html#_3-3-注释节点)3.3 注释节点
 
 注释型的`VNode`可以调用`_e(text)`函数来创建，所以生成注释节点的`render`函数就是生成一个`_e(text)`函数调用的字符串。`_e()`函数接收注释内容作为参数，其生成代码如下：
@@ -3770,8 +3555,6 @@ export function genComment (comment: ASTText): string {
   return `_e(${JSON.stringify(comment.text)})`
 }
 ```
-
-
 
 ## [#](https://vue-js.com/learn-vue/complie/codegen.html#_4-总结)4. 总结
 
@@ -3823,8 +3606,6 @@ Vue.prototype.$mount = function (el){
 }
 ```
 
-
-
 从上述代码中可以看到，首先从`Vue`实例的属性选项中获取`render`选项，如果没有获取到，说明用户没有手写`render`函数，那么此时，就像上一篇文章中说的，需要`Vue`自己将模板转化成`render`函数。接着获取模板，先尝试获取内部模板，如果获取不到则获取外部模板。最后，调用`compileToFunctions`函数将模板转化成`render`函数，再将`render`函数赋值给`options.render`。
 
 显然，上面代码中的核心部分是调用`compileToFunctions`函数生成`render`函数的部分，如下：
@@ -3837,8 +3618,6 @@ const { render, staticRenderFns } = compileToFunctions(template, {
         comments: options.comments
       }, this)
 ```
-
-
 
 将模板`template`传给`compileToFunctions`函数就可以得到`render`函数，那这个`compileToFunctions`函数是怎么来的呢？
 
@@ -3875,8 +3654,6 @@ export const createCompiler = createCompilerCreator(function baseCompile (
 })
 ```
 
-
-
 可以看到，`createCompiler`函数是又 调用`createCompilerCreator` 函数返回得到的，`createCompilerCreator` 函数接收一个`baseCompile`函数作为参数。我们仔细看这个`baseCompile`函数，这个函数就是我们所说的模板编译三大阶段的主函数。将这个函数传给`createCompilerCreator` 函数就可以得到`createCompiler`函数，那么我们再往前推，看一下`createCompilerCreator` 函数又是怎么定义的。
 
 `createCompilerCreator` 函数的定义位于源码的`src/complier/create-compiler.js`文件中，如下：
@@ -3888,8 +3665,6 @@ export function createCompilerCreator (baseCompile) {
   }
 }
 ```
-
-
 
 可以看到，调用`createCompilerCreator` 函数会返回`createCompiler`函数，同时我们也可以看到`createCompiler`函数的定义，如下：
 
@@ -3904,8 +3679,6 @@ function createCompiler (baseOptions) {
   }
 }
 ```
-
-
 
 在`createCompiler`函数的内部定义了一个子函数`compile`，同时返回一个对象，其中这个对象的第二个属性就是我们在开头看到的`compileToFunctions`，其值对应的是`createCompileToFunctionFn(compile)`函数的返回值，那么我们再往前推，看看`createCompileToFunctionFn(compile)`函数又是怎么样的。
 
@@ -3935,9 +3708,6 @@ function createFunction (code, errors) {
 }
 ```
 
-
-
-
 可以看到，调用`createCompileToFunctionFn`函数就可以得到`compileToFunctions`函数了，终于推到头了，原来最开始调用`compileToFunctions`函数是在这里定义的，那么我们就来看一下`compileToFunctions`函数内部都干了些什么。
 
 `compileToFunctions`函数内部会调用传入的`compile`函数，而这个`compile`函数是`createCompiler`函数内部定义的子函数，如下：
@@ -3950,8 +3720,6 @@ function compile (template,options) {
   return compiled
 }
 ```
-
-
 
 在`compile`函数内部又会调用传入的`baseCompile`函数，而这个`baseCompile`函数就是我们所说的模板编译三大阶段的主线函数，如下：
 
@@ -3975,8 +3743,6 @@ function baseCompile (
   }
 ```
 
-
-
 那么现在就清晰了，最开始调用的`compileToFunctions`函数内部调用了`compile`函数，在`compile`函数内部又调用了`baseCompile`函数，而`baseCompile`函数返回的是代码生成阶段生成好的`render`函数字符串。所以在`compileToFunctions`函数内部调用`compile`函数就可以拿到生成好的`render`函数字符串，然后在`compileToFunctions`函数内部将`render`函数字符串传给`createFunction`函数从而变成真正的`render`函数返回出去，最后将其赋值给`options.render`。为了便于更好的理解，我们画出了其上述过程的流程图，如下：
 
 ![img](https://vue-js.com/learn-vue/assets/img/8.ad277be0.jpg)
@@ -3985,7 +3751,7 @@ function baseCompile (
 
 # 4 生命周期篇
 
-##  1. 前言
+## 1. 前言
 
 在`Vue`中，每个`Vue`实例从被创建出来到最终被销毁都会经历一个过程，就像人一样，从出生到死亡。在这一过程里会发生许许多多的事，例如设置数据监听，编译模板，组件挂载等。在`Vue`中，把`Vue`实例从被创建出来到最终被销毁的这一过程称为`Vue`实例的生命周期，同时，在`Vue`实例生命周期的不同阶段`Vue`还提供了不同的钩子函数，以方便用户在不同的生命周期阶段做一些额外的事情。那么，接下来的几篇文章我们就从源码角度深入剖析一下一个`Vue`实例在从生到死的生命周期里到底都经历了些什么，每个阶段都做了哪些事情。
 
@@ -4008,7 +3774,7 @@ function baseCompile (
 
 ## 4.2 初始化阶段(new Vue)
 
-##  1. 前言
+## 1. 前言
 
 上篇文章中介绍了`Vue`实例的生命周期大致分为4个阶段，那么首先我们先从第一个阶段——初始化阶段开始入手分析。从生命周期流程图中我们可以看到，初始化阶段所做的工作也可大致分为两部分：第一部分是`new Vue()`，也就是创建一个`Vue`实例；第二部分是为创建好的`Vue`实例初始化一些事件、属性、响应式数据等。接下来我们就从源码角度来深入分析一下初始化阶段所做的工作及其内部原理。
 
@@ -4027,21 +3793,17 @@ function Vue (options) {
 }
 ```
 
-
-
 可以看到，`Vue`类的定义非常简单，其构造函数核心就一行代码：
 
 ```javascript
 this._init(options)
 ```
 
-
 调用原型上的`_init(options)`方法并把用户所写的选项`options`传入。那这个`_init`方法是从哪来的呢？在`Vue`类定义的下面还有几行代码，其中之一就是：
 
 ```javascript
 initMixin(Vue)
 ```
-
 
 这一行代码执行了`initMixin`函数，那`initMixin`函数又是从哪儿来的呢？该函数定义位于源码的`src/core/instance/init.js` 中，如下：
 
@@ -4071,8 +3833,6 @@ export function initMixin (Vue) {
 }
 ```
 
-
-
 可以看到，在`initMixin`函数内部就只干了一件事，那就是给`Vue`类的原型上绑定`_init`方法，同时`_init`方法的定义也在该函数内部。现在我们知道了，`new Vue()`会执行`Vue`类的构造函数，构造函数内部会执行`_init`方法，所以`new Vue()`所干的事情其实就是`_init`方法所干的事情，那么我们着重来分析下`_init`方法都干了哪些事情。
 
 首先，把`Vue`实例赋值给变量`vm`，并且把用户传递的`options`选项与当前构造函数的`options`属性及其父级构造函数的`options`属性进行合并（关于属性如何合并的问题下面会介绍），得到一个新的`options`选项赋值给`$options`属性，并将`$options`属性挂载到`Vue`实例上，如下：
@@ -4084,8 +3844,6 @@ vm.$options = mergeOptions(
     vm
 )
 ```
-
-
 
 接着，通过调用一些初始化函数来为`Vue`实例初始化一些属性，事件，响应式数据等，如下：
 
@@ -4100,8 +3858,6 @@ initProvide(vm) // 初始化 provide
 callHook(vm, 'created')  // 调用生命周期钩子函数
 ```
 
-
-
 可以看到，除了调用初始化函数来进行相关数据的初始化之外，还在合适的时机调用了`callHook`函数来触发生命周期的钩子，关于`callHook`函数是如何触发生命周期的钩子会在下面介绍，我们先继续往下看：
 
 ```javascript
@@ -4109,8 +3865,6 @@ if (vm.$options.el) {
     vm.$mount(vm.$options.el)
 }
 ```
-
-
 
 在所有的初始化工作都完成以后，最后，会判断用户是否传入了`el`选项，如果传入了则调用`$mount`函数进入模板编译与挂载阶段，如果没有传入`el`选项，则不进入下一个生命周期阶段，需要用户手动执行`vm.$mount`方法才进入下一个生命周期阶段。
 
@@ -4128,8 +3882,6 @@ vm.$options = mergeOptions(
 )
 ```
 
-
-
 它实际上就是把 `resolveConstructorOptions(vm.constructor)` 的返回值和 `options` 做合并，`resolveConstructorOptions` 的实现先不考虑，可简单理解为返回 `vm.constructor.options`，相当于 `Vue.options`，那么这个 `Vue.options`又是什么呢，其实在 `initGlobalAPI(Vue)` 的时候定义了这个值，代码在 `src/core/global-api/index.js` 中：
 
 ```javascript
@@ -4145,8 +3897,6 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 }
 ```
 
-
-
 首先通过 `Vue.options = Object.create(null)` 创建一个空对象，然后遍历 `ASSET_TYPES`，`ASSET_TYPES` 的定义在 `src/shared/constants.js` 中：
 
 ```javascript
@@ -4157,8 +3907,6 @@ export const ASSET_TYPES = [
 ]
 ```
 
-
-
 所以上面遍历 `ASSET_TYPES` 后的代码相当于：
 
 ```js
@@ -4166,8 +3914,6 @@ Vue.options.components = {}
 Vue.options.directives = {}
 Vue.options.filters = {}
 ```
-
-
 
 最后通过 `extend(Vue.options.components, builtInComponents)` 把一些内置组件扩展到 `Vue.options.components` 上，`Vue` 的内置组件目前 有`<keep-alive>`、`<transition>` 和`<transition-group>` 组件，这也就是为什么我们在其它组件中使用这些组件不需要注册的原因。
 
@@ -4214,8 +3960,6 @@ export function mergeOptions (
 }
 ```
 
-
-
 可以看出，`mergeOptions`函数的 主要功能是把 `parent` 和 `child` 这两个对象根据一些合并策略，合并成一个新对象并返回。首先递归把 `extends` 和 `mixins` 合并到 `parent` 上，
 
 ```javascript
@@ -4230,8 +3974,6 @@ export function mergeOptions (
   }
 ```
 
-
-
 然后创建一个空对象`options`，遍历 `parent`，把`parent`中的每一项通过调用 `mergeField`函数合并到空对象`options`里，
 
 ```javascript
@@ -4242,8 +3984,6 @@ for (key in parent) {
 }
 ```
 
-
-
 接着再遍历 `child`，把存在于`child`里但又不在 `parent`中 的属性继续调用 `mergeField`函数合并到空对象`options`里，
 
 ```javascript
@@ -4253,8 +3993,6 @@ for (key in child) {
     }
 }
 ```
-
-
 
 最后，`options`就是最终合并后得到的结果，将其返回。
 
@@ -4281,8 +4019,6 @@ LIFECYCLE_HOOKS.forEach(hook => {
 })
 ```
 
-
-
 这其中的 `LIFECYCLE_HOOKS` 的定义在 `src/shared/constants.js` 中：
 
 ```javascript
@@ -4300,8 +4036,6 @@ export const LIFECYCLE_HOOKS = [
   'errorCaptured'
 ]
 ```
-
-
 
 这里定义了所有钩子函数名称，所以对于钩子函数的合并策略都是 `mergeHook` 函数。`mergeHook` 函数的实现用了一个多层嵌套的三元运算符，如果嵌套太深不好理解的话我们可以将其展开，如下：
 
@@ -4322,7 +4056,6 @@ function mergeHook (parentVal,childVal):  {
  }
 }
 ```
-
 
 从展开后的代码中可以看到，它的合并策略是这样子的：如果 `childVal`不存在，就返回 `parentVal`；否则再判断是否存在 `parentVal`，如果存在就把 `childVal` 添加到 `parentVal` 后返回新数组；否则返回 `childVal` 的数组。所以回到 `mergeOptions` 函数，一旦 `parent` 和 `child` 都定义了相同的钩子函数，那么它们会把 2 个钩子函数合并成一个数组。
 
@@ -4347,8 +4080,6 @@ export function callHook (vm: Component, hook: string) {
 }
 ```
 
-
-
 可以看到，`callHook`函数逻辑非常简单。首先从实例的`$options`中获取到需要触发的钩子名称所对应的钩子函数数组`handlers`，我们说过，每个生命周期钩子名称都对应了一个钩子函数数组。然后遍历该数组，将数组中的每个钩子函数都执行一遍。
 
 ## [#](https://vue-js.com/learn-vue/lifecycle/newVue.html#_5-总结)5. 总结
@@ -4365,7 +4096,7 @@ export function callHook (vm: Component, hook: string) {
 
 ## 4.3 初始化阶段(initLifecycle)
 
-##  1. 前言
+## 1. 前言
 
 在上篇文章中，我们介绍了生命周期初始化阶段的整体工作流程，以及在该阶段都做了哪些事情。我们知道了，在该阶段会调用一些初始化函数，对`Vue`实例的属性、数据等进行初始化工作。那这些初始化函数都初始化了哪些东西以及都怎么初始化的呢？接下来我们就把这些初始化函数一一展开介绍，本篇文章介绍第一个初始化函数`initLifecycle`。
 
@@ -4401,8 +4132,6 @@ export function initLifecycle (vm: Component) {
 }
 ```
 
-
-
 可以看到，`initLifecycle`函数的代码量并不多，逻辑也不复杂。其主要是给`Vue`实例上挂载了一些属性并设置了默认值，值得一提的是挂载`$parent` 属性和`$root`属性， 下面我们就来逐个分析。
 
 首先是给实例上挂载`$parent`属性，这个属性有点意思，我们先来看看代码：
@@ -4419,8 +4148,6 @@ if (parent && !options.abstract) {
 vm.$parent = parent
 ```
 
-
-
 从代码中可以看到，逻辑是这样子的：如果当前组件不是抽象组件并且存在父级，那么就通过`while`循环来向上循环，如果当前组件的父级是抽象组件并且也存在父级，那就继续向上查找当前组件父级的父级，直到找到第一个不是抽象类型的父级时，将其赋值`vm.$parent`，同时把该实例自身添加进找到的父级的`$children`属性中。这样就确保了在子组件的`$parent`属性上能访问到父组件实例，在父组件的`$children`属性上也能访问子组件的实例。
 
 接着是给实例上挂载`$root`属性，如下：
@@ -4428,7 +4155,6 @@ vm.$parent = parent
 ```javascript
 vm.$root = parent ? parent.$root : vm
 ```
-
 
 实例的`$root`属性表示当前实例的根实例，挂载该属性时，首先会判断如果当前实例存在父级，那么当前实例的根实例`$root`属性就是其父级的根实例`$root`属性，如果不存在，那么根实例`$root`属性就是它自己。这很好理解，举个例子：假如有一个人，他如果有父亲，那么他父亲的祖先肯定也是他的祖先，同理，他的儿子的祖先也肯定是他的祖先，我们不需要真正的一层一层的向上递归查找到他祖先本人，只需要知道他父亲的祖先是谁然后告诉他即可。如果他没有父亲，那说明他自己就是祖先，那么他后面的儿子、孙子的`$root`属性就是他自己了。
 
@@ -4448,8 +4174,6 @@ vm._isDestroyed = false
 vm._isBeingDestroyed = false
 ```
 
-
-
 ## [#](https://vue-js.com/learn-vue/lifecycle/initLifecycle.html#_3-总结)3. 总结
 
 本篇文章介绍了初始化阶段调用的第一个初始化函数——`initLifecycle`函数。该函数的逻辑非常简单，就是给实例初始化了一些属性，包括以`$`开头的供用户使用的外部属性，也包括以`_`开头的供内部使用的内部属性。
@@ -4461,9 +4185,8 @@ vm._isBeingDestroyed = false
 本篇文章介绍生命周期初始化阶段所调用的第二个初始化函数——`initEvents`。从函数名字上来看，这个初始化函数是初始化实例的事件系统。我们知道，在`Vue`中，当我们在父组件中使用子组件时可以给子组件上注册一些事件，这些事件即包括使用`v-on`或`@`注册的自定义事件，也包括注册的浏览器原生事件（需要加 `.native` 修饰符），如下：
 
 ```html
-<child @select="selectHandler" 	@click.native="clickHandler"></child>
+<child @select="selectHandler"  @click.native="clickHandler"></child>
 ```
-
 
 不管是什么事件，当子组件（即实例）在初始化的时候都需要进行一定的初始化，那么本篇文章就来看看实例上的事件都是如何进行初始化的。
 
@@ -4495,8 +4218,6 @@ function processAttrs (el) {
   }
 }
 ```
-
-
 
 从上述代码中可以看到，在对标签属性进行解析时，判断如果属性是指令，首先通过 `parseModifiers` 解析出属性的修饰符，然后判断如果是事件的指令，则执行 `addHandler(el, name, value, modifiers, false, warn)` 方法， 该方法定义在 `src/compiler/helpers.js` 中，如下：
 
@@ -5073,7 +4794,7 @@ const normalizeEvent = cached((name: string): {
 
 ## 4.5 初始化阶段(initInjections)
 
-##  1. 前言
+## 1. 前言
 
 本篇文章介绍生命周期初始化阶段所调用的第四个初始化函数——`initInjections`。从函数名字上来看，该函数是用来初始化实例中的`inject`选项的。说到`inject`选项，那必然离不开`provide`选项，这两个选项都是成对出现的，它们的作用是：允许一个祖先组件向其所有子孙后代注入一个依赖，不论组件层次有多深，并在起上下游关系成立的时间里始终生效。并且
 
@@ -5750,8 +5471,6 @@ inject:{
 
 另外，对`inject`选项的规范化函数`normalizeInject`也进行了分析，`Vue`为用户提供了自由多种的写法，其内部是将各种写法最后进行统一规范化处理。
 
-
-
 ## 4.6 初始化阶段(initState)
 
 ## 1. 前言
@@ -5872,7 +5591,7 @@ props: {
 // 写法三
 props: {
     name:{
-		type: String
+  type: String
     }
 }
 ```
@@ -6602,7 +6321,7 @@ if (vm && vm.$options.propsData &&
 ```javascript
 return typeof def === 'function' && getType(prop.type) !== 'Function'
     ? def.call(vm)
-	: def
+ : def
 ```
 
 1
@@ -7114,7 +6833,7 @@ function initData (vm) {
 let data = vm.$options.data
 data = vm._data = typeof data === 'function'
     ? getData(data, vm)
-	: data || {}
+ : data || {}
 ```
 
 1
@@ -7526,7 +7245,7 @@ sharedPropertyDefinition.get = userDef.get
       : noop
 sharedPropertyDefinition.set = userDef.set
     ? userDef.set
-	: noop
+ : noop
 ```
 
 1
@@ -7969,7 +7688,7 @@ function createWatcher (
 watch: {
     c: {
         handler: function (val, oldVal) { /* ... */ },
-		deep: true
+  deep: true
     }
 }
 ```
@@ -8034,8 +7753,6 @@ if (typeof handler === 'string') {
 这5个选项中的所有属性最终都会被绑定到实例上，这也就是我们为什么可以使用`this.xxx`来访问任意属性。同时正是因为这一点，这5个选项中的所有属性名都不应该有所重复，这样会造成属性之间相互覆盖。
 
 最后，我们对这5个选项分别都是如何进行初始化的内部原理进行了逐一分析。
-
-
 
 ## 4.7 模板编译阶段
 
@@ -8541,8 +8258,6 @@ if (template) {
 
 最后，我们知道了分析模板编译阶段其实就是分析完整版的`vm.$mount`方法的实现，我们将完整版的`vm.$mount`方法源码进行了逐行分析。知道了在该阶段中所做的工作就是：从用户传入的`el`选项和`template`选项中获取到用户传入的内部或外部模板，然后将获取到的模板编译成渲染函数。
 
-
-
 ## 4.8 挂载阶段
 
 ## 1. 前言
@@ -8690,7 +8405,7 @@ new Watcher(
             callHook(vm, 'beforeUpdate')
           }
         }
-	},
+ },
     true                    // 第五个参数
 )
 ```
@@ -8725,11 +8440,9 @@ new Watcher(
 
 我们将挂载阶段所做的工作分成两部分进行了分析，第一部分是将模板渲染到视图上，第二部分是开启对模板中数据（状态）的监控。两部分工作都完成以后挂载阶段才算真正的完成了。
 
-
-
 ## 4.9 销毁阶段
 
-##  1. 前言
+## 1. 前言
 
 接下来到了生命周期流程的最后一个阶段——销毁阶段。从官方文档给出的生命周期流程图中可以看到，当调用了`vm.$destroy`方法，`Vue`实例就进入了销毁阶段，该阶段所做的主要工作是将当前的`Vue`实例从其父级实例中删除，取消当前实例上的所有依赖追踪并且移除实例上的所有事件监听器。也就是说，当这个阶段完成之后，当前的`Vue`实例的整个生命流程就全部走完了，最终“寿终正寝”了。
 
@@ -8935,13 +8648,9 @@ vm.$off()
 
 我们知道了，当调用了实例上的`vm.$destory`方法后，实例就进入了销毁阶段，在该阶段所做的主要工作是将当前的`Vue`实例从其父级实例中删除，取消当前实例上的所有依赖追踪并且移除实例上的所有事件监听器。并且对照源码将所做的工作都进行了逐行分析。
 
-
-
 # 5 实例方法篇
 
 ## 5.1 数据相关方法
-
-
 
 ## 0. 前言
 
@@ -9009,7 +8718,7 @@ vm.$watch( expOrFn, callback, [options] )
   vm.$watch('a.b.c', function (newVal, oldVal) {
     // 做点什么
   })
-  
+
   // 函数
   vm.$watch(
     function () {
@@ -9361,9 +9070,9 @@ export default class Watcher {
         this.value = this.get()
     }
     get () {
-		// ...
+  // ...
         // "touch" every property so they are all tracked as
-      	// dependencies for deep watching
+       // dependencies for deep watching
         if (this.deep) {
             traverse(value)
         }
@@ -9905,11 +9614,9 @@ ob.dep.notify()
 
 以上，就是`delete`方法的内部原理。
 
-
-
 ## 5.2 事件相关方法
 
-##  0. 前言
+## 0. 前言
 
 与事件相关的实例方法有4个，分别是`vm.$on`、`vm.$emit`、`vm.$off`和`vm.$once`。它们是在`eventsMixin`函数中挂载到`Vue`原型上的，代码如下：
 
@@ -10467,8 +10174,6 @@ vm.$off('xxx',fn)
 
 以上，就是`$once`方法的内部原理。
 
-
-
 ## 5.3 生命周期相关方法
 
 ## 0. 前言
@@ -10602,7 +10307,7 @@ vm.$nextTick( [callback] )
 
 ```vue
 <template>
-	<div id="example">{{message}}</div>
+ <div id="example">{{message}}</div>
 </template>
 <script>
     var vm = new Vue({
@@ -10952,8 +10657,6 @@ vm.$destroy()
 ### [#](https://vue-js.com/learn-vue/instanceMethods/lifecycle.html#_4-2-内部原理)4.2 内部原理
 
 关于该方法的内部原理在介绍**生命周期篇的销毁阶段**中已经详细分析过，此处不再重复。
-
-
 
 # 6 全局API篇
 
@@ -11399,7 +11102,7 @@ Vue.nextTick( [callback, context] )
   Vue.nextTick(function () {
     // DOM 更新了
   })
-  
+
   // 作为一个 Promise 使用 (2.1.0 起新增，详见接下来的提示)
   Vue.nextTick()
     .then(function () {
@@ -11513,12 +11216,12 @@ Vue.directive( id, [definition] )
     componentUpdated: function () {},
     unbind: function () {}
   })
-  
+
   // 注册 (指令函数)
   Vue.directive('my-directive', function () {
     // 这里将会被 `bind` 和 `update` 调用
   })
-  
+
   // getter，返回已注册的指令
   var myDirective = Vue.directive('my-directive')
   ```
@@ -11648,7 +11351,7 @@ Vue.filter( id, [definition] )
   Vue.filter('my-filter', function (value) {
     // 返回处理后的值
   })
-  
+
   // getter，返回已注册的过滤器
   var myFilter = Vue.filter('my-filter')
   ```
@@ -11719,10 +11422,10 @@ Vue.component( id, [definition] )
   ```javascript
   // 注册组件，传入一个扩展过的构造器
   Vue.component('my-component', Vue.extend({ /* ... */ }))
-  
+
   // 注册组件，传入一个选项对象 (自动调用 Vue.extend)
   Vue.component('my-component', { /* ... */ })
-  
+
   // 获取注册的组件 (始终返回构造器)
   var MyComponent = Vue.component('my-component')
   ```
@@ -12070,7 +11773,7 @@ Vue.compile( template )
 
   ```javascript
   var res = Vue.compile('<div><span>{{ msg }}</span></div>')
-  
+
   new Vue({
     data: {
       msg: 'hello'
@@ -12126,7 +11829,7 @@ Vue.observable( object )
 
   ```javascript
   const state = Vue.observable({ count: 0 })
-  
+
   const Demo = {
     render(h) {
       return h('button', {
@@ -12168,7 +11871,7 @@ Vue.version
 
   ```javascript
   var version = Number(Vue.version.split('.')[0])
-  
+
   if (version === 2) {
     // Vue v2.x.x
   } else if (version === 1) {
@@ -12193,8 +11896,6 @@ Vue.version
 从用法回顾中可以知道，该API是用来标识当前构建的`Vue.js`的版本号，对于日常业务开发几乎用不到，但是对于插件编写非常有用，可以根据`Vue`版本的不同从而做一些不同的事情。
 
 该API是在构建时读取了`package.json`中的`version`字段，然后将其赋值给`Vue.version`。
-
-
 
 # 7 过滤器篇
 
@@ -12299,8 +12000,6 @@ Vue.filter('capitalize', function (value) {
 最后，官方文档还说了所谓过滤器本质上就是一个`JS`函数，所以我们在使用过滤器的时候还可以给过滤器传入参数，过滤器接收的第一个参数永远是表达式的值，或者是前一个过滤器处理后的结果，后续其余的参数可以被用于过滤器内部的过滤规则中。
 
 了解了过滤器的用法之后，那么接下来我们就对其内部原理一探究竟。
-
-
 
 ## 7.1 工作原理
 
@@ -12565,8 +12264,6 @@ filters: {
 所谓`_f`函数其实就是`resolveFilter`函数的别名，在`resolveFilter`函数内部是根据过滤器`id`从当前实例的`$options`中的`filters`属性中获取到对应的过滤器函数，在之后执行渲染函数的时候就会执行获取到的过滤器函数。
 
 现在我们已经了解了过滤器的工作原理，那么`Vue`在模板编译的时候是如何识别出用户所写的过滤器并且解析出过滤器中的内容呢？下篇文章我们来介绍`Vue`如何解析过滤器。
-
-
 
 ## 7.2 解析过滤器
 
@@ -13031,7 +12728,7 @@ function pushFilter () {
 
 上述代码的逻辑就是将字符串`exp`的每一个字符都从前往后开始一个一个匹配，匹配出那些特殊字符，如`'`,`"`,`，`{`,`}`,`[`,`]`,`(`,`)`,`\`,`|`。
 
-如果匹配到`'`,`"`,`字符，说明当前字符在字符串中，那么直到匹配到下一个同样的字符才结束，同时， 匹配 `()`, `{}`,`[]` 这些需要两边相等闭合, 那么匹配到的 `|` 才被认为是过滤器中的`|`。
+如果匹配到`'`,`"`,`字符，说明当前字符在字符串中，那么直到匹配到下一个同样的字符才结束，同时， 匹配`()`,`{}`,`[]` 这些需要两边相等闭合, 那么匹配到的 `|`才被认为是过滤器中的`|`。
 
 当匹配到过滤器中的`|`符时，那么`|`符前面的字符串就认为是待处理的表达式，将其存储在 `expression` 中，后面继续匹配，如果再次匹配到过滤器中的 `|`符 ,并且此时`expression`有值， 那么说明后面还有第二个过滤器，那么此时两个`|`符之间的字符串就是第一个过滤器的`id`，此时调用 `pushFilter`函数将第一个过滤器添加进`filters`数组中。举个例子：
 
@@ -13132,8 +12829,6 @@ return `_f("${name}")(${exp}${args !== ')' ? ',' + args : args}`
 接着，我们分析了`parseFilters`函数的内部逻辑。该函数接收一个形如`'message | capitalize'`这样的过滤器字符串作为，最终将其转化成`_f("capitalize")(message)`输出。在`parseFilters`函数的内部是通过遍历传入的过滤器字符串每一个字符，根据每一个字符是否是一些特殊的字符从而作出不同的处理，最终，从传入的过滤器字符串中解析出待处理的表达式`expression`和所有的过滤器`filters`数组。
 
 最后，将解析得到的`expression`和`filters`数组通过调用`wrapFilter`函数将其构造成`_f`函数调用字符串。
-
-
 
 # 8 自定义指令篇
 
@@ -13653,8 +13348,6 @@ if (!isCreate) {
 接着，我们逐行分析了`updateDirectives`函数，在该函数中就是对比新旧两份`VNode`上的指令列表，通过对比的异同点从而执行指令不同的钩子函数，让指令生效。
 
 最后，一句话概括就是：**所谓让指令生效，其实就是在合适的时机执行定义指令时所设置的钩子函数。**
-
-
 
 # 9 内置组件篇
 
@@ -14371,13 +14064,13 @@ let A = {
   '</div>',
   name: 'A',
   mounted(){
-  	console.log('Comp A mounted')
+   console.log('Comp A mounted')
   },
   activated(){
-  	console.log('Comp A activated')
+   console.log('Comp A activated')
   },
   deactivated(){
-  	console.log('Comp A deactivated')
+   console.log('Comp A deactivated')
   }
 }
 
@@ -14387,13 +14080,13 @@ let B = {
   '</div>',
   name: 'B',
   mounted(){
-  	console.log('Comp B mounted')
+   console.log('Comp B mounted')
   },
   activated(){
-  	console.log('Comp B activated')
+   console.log('Comp B activated')
   },
   deactivated(){
-  	console.log('Comp B deactivated')
+   console.log('Comp B deactivated')
   }
 }
 
@@ -14495,4 +14188,3 @@ let vm = new Vue({
 最后，观察了`<keep-alive>`组件对应的两个生命周期钩子函数的调用时机。
 
 读完这篇文章相信在面试中被问到`<keep-alive>`组件的实现原理的时候就不慌不忙啦。
-
