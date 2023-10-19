@@ -8,6 +8,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import ElementPlus from 'unplugin-element-plus/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 import { resolve } from 'node:path'
 import { createProxy } from './build/vite/proxy'
@@ -32,21 +33,51 @@ export default defineConfig(({ command, mode }) => {
   return {
     base: VITE_PUBLIC_PATH,
     plugins: [
-      vue(),
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: () => {
+              return false
+            },
+          },
+        },
+      }),
       vueJsx(),
       AutoImport({
         resolvers: [ElementPlusResolver()],
-        imports: ['vue'],
+        imports: [
+          'vue',
+          'vue-router',
+          {
+            from: 'vue-router',
+            imports: ['RouteLocationRaw'],
+            type: true,
+          },
+        ],
         dts: 'src/auto-import.d.ts',
+        include: [
+          /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
+          /\.vue$/,
+          /\.vue\?vue/, // .vue
+        ],
       }),
       Components({
         resolvers: [ElementPlusResolver()],
       }),
       ElementPlus({}),
+      visualizer({
+        emitFile: false,
+        filename: 'stats.html',
+        open: true,
+      }),
     ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)), // 引用别名,fileURLToPath为了保证转码不会乱码
+        '@c': fileURLToPath(new URL('./src/components', import.meta.url)),
+        '@t': fileURLToPath(new URL('./src/types', import.meta.url)),
+        '@s': fileURLToPath(new URL('./src/styles', import.meta.url)),
+        '@a': fileURLToPath(new URL('./src/api', import.meta.url)),
       },
       // #region
       // alias: [
@@ -57,6 +88,7 @@ export default defineConfig(({ command, mode }) => {
       //   },
       // ],
       // #endregion
+      extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
     },
     server: {
       port: 4000,
@@ -84,8 +116,9 @@ export default defineConfig(({ command, mode }) => {
           },
           javascriptEnabled: true, // less文件支持js的写法
           /*
-            70行会被解析成， @hack: true， @import (reference)"${resolve('src/design//config.less')}"
+            会被解析成， @hack: true， @import (reference)"${resolve('src/design//config.less')}"
           */
+          additionalData: '@import "./src/styles/global.less";',
         },
       },
     },

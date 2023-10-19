@@ -6,5 +6,15 @@
     "composite": true,
     "lib": [],
     "types": ["node", "jsdom"]
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue", // 确保包括 Vue 文件
+    "src/types/**/*.d.ts",
+    "src/types/**/*.ts",
+    "mock/**/*.ts",
+    "utils"
+  ]
 }
