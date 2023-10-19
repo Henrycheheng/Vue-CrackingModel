@@ -2,11 +2,8 @@ import axios, { AxiosRequestConfig } from 'axios'
 import NProgress from 'nprogress'
 import type { Http } from './ResType'
 
-// 设置请求头和请求路径
-
 axios.defaults.baseURL = '/api'
 axios.defaults.timeout = 10000
-// headers只能是对象
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset-UTF-8'
 
 axios.interceptors.request.use(

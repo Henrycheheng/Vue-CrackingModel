@@ -5,6 +5,7 @@
     <div class="wrapper">
       <nav>
         <RouterLink to="/"></RouterLink>
+        <RouterLink to="/about"></RouterLink>
         <RouterLink to="/anime"></RouterLink>
         <RouterLink to="/live"></RouterLink>
         <RouterLink to="/game"></RouterLink>

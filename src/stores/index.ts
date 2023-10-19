@@ -1,7 +1,8 @@
-import { loginStore } from '@/stores/modules/login'
+import { createPinia } from 'pinia'
+import piniaPluginPerisit from 'pinia-plugin-persist'
 
-export default function useStore() {
-  return {
-    counters: loginStore(),
-  }
-}
+// 全局设置
+export const pinia = createPinia()
+pinia.use(piniaPluginPerisit)
+
+export default pinia

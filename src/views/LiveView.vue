@@ -1,5 +1,5 @@
 <template>
-  <div> VideoView</div>
+  <div> LiveView</div>
 </template>
 
 <script setup lang="ts"></script>
