@@ -1,4 +1,4 @@
-// 日本语
+// 日本语 暂时用英语
 const jpJp = {
   home: 'Home',
   index: 'Index',

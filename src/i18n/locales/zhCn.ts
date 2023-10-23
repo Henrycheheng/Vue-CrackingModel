@@ -3,7 +3,7 @@ const zhCn = {
   index: '主页',
   list: '列表',
   info: '信息',
-  welcome: '欢迎光临',
+  welcome: '欢迎',
 }
 
 export default zhCn

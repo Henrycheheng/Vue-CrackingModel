@@ -4,10 +4,22 @@
     "antfu.unocss",
     "antfu.vite",
     "antfu.goto-alias",
+    "antfu.gotodefinition-alias",
+    "antfu.auto-npx",
     "csstools.postcss",
     "dbaeumer.vscode-eslint",
     "vue.volar",
     "lokalise.i18n-ally",
-    "streetsidesoftware.code-spell-checker"
+    "streetsidesoftware.code-spell-checker",
+    "Alexander.error-lens",
+    "Gruntfuggly.auto-align",
+    "jun-han.auto-close-tag",
+    "jun-han.auto-complete-tag",
+    "jun-han.auto-rename-tag",
+    "Aaron-bond.better-comments",
+    "Wix.import-cost",
+    "Christian.path-intellisense",
+    "Stylelint.Stylelint",
+    "zixuanchen.vitest"
   ]
 }

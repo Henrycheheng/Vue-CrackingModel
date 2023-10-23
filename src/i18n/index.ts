@@ -7,4 +7,5 @@ const i18n: any = createI18n({
   legacy: false,
   messages,
 })
+
 export default i18n
