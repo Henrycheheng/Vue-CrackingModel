@@ -3,7 +3,7 @@ const zhHk = {
   index: '主頁',
   list: '清單',
   info: '資訊',
-  welcome: '歡迎光臨',
+  welcome: '歡迎',
 }
 
 export default zhHk
