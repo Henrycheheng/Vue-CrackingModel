@@ -1,7 +1,10 @@
-<script setup lang="ts"></script>
+<!-- eslint-disable no-console -->
+<script setup lang="ts" name="home">
+
+</script>
 
 <template>
-  <div>Home </div>
+  <div>Home</div>
 </template>
 
 <style scoped lang="less"></style>
