@@ -25,6 +25,11 @@ const router = createRouter({
       component: () => import('@/views/LiveView.vue'),
     },
     {
+      path: '/demo',
+      name: 'demo',
+      component: () => import('@/views/DemoView.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*', // 动态路由匹配所有页面任意个或者0个任意字符
       name: '404',
       component: () => import('@/components/NotFound.vue'),
